@@ -1,0 +1,30 @@
+schema S = { 
+ nodes
+ 	Employee, Department;
+ attributes
+	name  : Department -> string,
+  	first : Employee -> string,
+  	last  : Employee -> string;
+ arrows
+	manager   : Employee -> Employee,
+	worksIn   : Employee -> Department,
+	secretary : Department -> Employee;
+ equations  
+  	Employee.manager.worksIn = Employee.worksIn,
+  	Department.secretary.worksIn = Department,
+  	Employee.manager.manager = Employee.manager;
+}
+
+instance I = {
+ nodes
+	Employee -> { 101, 102, 103 },
+	Department -> { q10, x02 };
+ attributes
+	first -> { (101, Alan), (102, Camille), (103, Andrey) },
+	last  -> { (101, Turing), (102, Jordan), (103, Markov) },
+	name  -> { (q10, AppliedMath), (x02, PureMath) };
+ arrows
+	manager -> { (101, 103), (102, 102), (103, 103) },
+	worksIn -> { (101, q10), (102, x02), (103, q10) },
+	secretary -> { (q10, 101), (x02, 102) };
+} : S

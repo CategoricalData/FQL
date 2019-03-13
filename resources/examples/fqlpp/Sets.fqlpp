@@ -1,0 +1,73 @@
+/*
+ * In FQL++, a *value* is either:
+ *
+ *  - a string, that must be quoted if it contains spaces or special symbols, like "-".
+ *        Numbers are treated as strings in FQL++.
+ *  - a unit, written ().
+ *  - a boolean, written true or false.
+ *  - a pair of two values v1 and v2, written (v1, v2).
+ *  - a left or right injection of a value v, written inl v or inr v.
+ *  - a (possibly empty) set of values, written {v1, ..., vn}.
+ *  - a function, written as a set of pairs with explicit domain and co-domain:
+ *        {(x1,y1), ..., (xN,yN)} : {x1, ..., xN} -> {y1, ..., yN}.
+ */
+
+//A *set literal* is a set of values, for example: 
+set s1 = {foo, bar, "b a z", 7, true, false}
+set s2 = {(), inl (), inr (), inl inr 7, (hello,world), {a,b,{c,d},{}}}
+set s3 = { {(1,1),(2,4),(3,9)} : {1,2,3} -> {1,4,9}, {(1,1),(2,4),(3,9)} : {1,2,3} -> {1,4,9,10,11,12} }
+
+//A *set* is either a set literal, as above, or a set constructed from
+//set literals and +,*,^,void,unit,prop, for example:
+set s4 = void // = {}
+set s5 = unit // = { () }
+set s6 = prop // = { true, false }
+set s7 = (unit + unit) // = { inl (), inr () }
+set s8 = (prop * prop) // = { (true,true),(true,false),(false,true),(false,false) }
+set s9 = (prop ^ unit) // = { ((), true) : {()} -> {true,false}, ((), false) : {()} -> {true,false} }
+
+set s10 = {a,b,c}
+set s11 = {a,b,d}
+set s10unions11 = (s10 union s11)
+set s10intersects11 = (s10 intersect s11)
+
+//a *function literal* is a function value, for example
+function f1 = { (1,2),(2,3) } : {1,2} -> {2,3}
+
+//functions can refer to named sets, so we could write instead
+set sf = {1,2}
+function f2 = { (1,2),(2,3) } : sf -> {2,3}
+
+//a *function* is either a function literal, as above, or a function constructed from
+//function literals and tt,ff,fst,snd,(+),(*),(;),eval,curry,char,kernel,iso1,iso2,id
+//for example
+function f3 = fst {a,b} {c,d} // (a,c) -> a  (a,d) -> a  (b,c) -> b  (b,d) -> d
+function f4 = inl {a,b} {c,d} // a -> inl a, b -> inl b
+function f5 = id {a,b} // a -> a, b -> b
+function f6 = (f5 ; f5) // = f5
+function pair_eta = (fst {a,b} {c,d} * snd {a,b} {c,d}) // = id
+function sum_eta = (inl {a,b} {c,d} + inr {a,b} {c,d}) // = id
+function exp_eta = curry eval {a} {b} // = id
+function f7 = char {(1,a),(2,b)} : {1,2} -> {a,b,c} // = a -> true, b -> true
+function f8 = kernel f7 // = {(a, a),  (b, b)} : {a, b} -> {a, b, c}
+function f9 = iso1 {a,b} {1,2} // = a -> 1, b -> 2
+function f10 = tt {a}
+function f11 = ff {a}
+function f12 = true
+function f13 = false
+function f14 = and
+function f15 = or
+function f16 = not
+function f17 = implies
+
+//Domains, co-domains, and range require that you must name the function, i.e., as f7
+set x = dom f7 // = {a,b}
+set y = cod f7 // = {true,false}
+set z = range f8 // = {a,b}
+
+//the number n denotes the set {0, ..., n-1}
+set two = 2
+set three = 3
+set five = 5
+set two_plus_three = (2+3)
+function two_plus_three_equals_five = iso1 two_plus_three five

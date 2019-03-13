@@ -1,0 +1,86 @@
+//illustrates all possible FQL declarations
+enum color = {red, green, blue}
+
+schema C = {nodes; attributes; arrows; equations;}
+schema C1 = void
+schema C2 = unit {string, int, float, color}
+schema C3 = (C + C)
+schema C4 = (C * C)
+schema C5 = (C union C)
+schema C6 = opposite C
+schema C7 = (C ^ C)
+
+mapping F = id C
+mapping F1 = (F then F)
+mapping F2 = {nodes; attributes; arrows;} : C -> C
+mapping F3 = inl C C
+mapping F4 = inr C C
+mapping F5 = (F3 + F4)
+mapping F6 = fst C C
+mapping F7 = snd C C
+mapping F8 = (F6 * F7)
+mapping F9 = void C
+mapping F10= unit {string, int, color} C
+mapping F13 = subschema C C5
+mapping F14 = opposite F
+mapping F11= eval C C
+mapping F12= curry id (C*C)
+
+query q = delta F pi F sigma F
+query p = (q then q)
+//see Schema Matching example for available strings
+QUERY Q1 = delta F
+QUERY Q2 = SIGMA F
+QUERY Q3 = pi F
+QUERY Q4 = match {} C C "delta sigma forward"
+QUERY Q5 = (Q1 then Q2)
+
+instance I   = { nodes; attributes; arrows; } : C
+instance I1  = delta F I
+instance I2  = pi F I
+instance I3  = sigma F I
+instance I4  = relationalize I
+instance I5  = SIGMA F I
+instance I8  = (I + I1)
+instance I10 = (I ^ I)
+instance I9  = (I10 * I)
+instance I11 = unit C
+instance I12 = void C
+instance I13 = prop C
+instance I6  = external C name
+instance I7  = eval q I
+instance I7x = EVAL Q1 I
+
+transform t1 = id I
+transform t2 = (t1 then t1)
+transform t3 = {nodes;} : I -> I
+transform t4 = I8.inl
+transform t5 = I8.inr
+transform t6 = I8.(t4+t5)
+transform t7 = I9.fst
+transform t9 = I9.snd
+transform t10 = I9.(t7*t9)
+transform t12 = I11.unit I
+transform t13 = I12.void I
+transform t15 = delta I1 I1 id I
+transform t16 = sigma I3 I3 id I
+transform t20 = SIGMA I5 I5 t1
+transform t17 = pi I2 I2 id I
+transform t18 = relationalize I4 I4 id I
+transform t19 = I4.relationalize
+transform t21 = external I6 I6 name
+transform t22 = I9.eval
+transform t23 = I10.curry t22
+transform t26 = I13.true I11
+transform t27 = I13.false I11
+transform t28 = I13.char t26
+instance Is = kernel t28
+transform t29 = Is.kernel
+
+////(co)monads also work for SIGMA and pi
+instance I3X = delta F I3
+transform I3Xa = I3X.return
+instance I1X = sigma F I1
+transform I1Xa = I1X.coreturn
+
+drop I t1

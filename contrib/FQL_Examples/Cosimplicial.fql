@@ -1,0 +1,20 @@
+schema Cosimplicial2 = {
+	nodes
+		S0,
+		S01,
+		S012
+		;
+	attributes;
+	arrows
+		Up0,
+		Up1,
+		Down00,
+		Up01,
+		Up02,
+		Up12,
+		Down001,
+		Down011
+		;
+	equations
+	;
+}

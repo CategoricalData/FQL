@@ -1,0 +1,70 @@
+/* 
+Consider the diagram shape A <-- O --> B in Cat, 
+where O is the terminal category (x), A and B are free arrows 
+A = (a0--->a1) and B = (b0-->b1), 
+the map O-->A picks out the target, a1, and the map O-->B picks out the source, b0. 
+The colimit category has a "new path" (a0-->x-->b1) that neither A nor B "knew about".
+*/
+
+category O = {
+	objects 
+		x;
+	arrows;
+	equations;
+} 
+
+category A = {
+	objects 
+		a0, a1;
+	arrows
+		f : a0 -> a1;
+	equations;
+} 
+
+category B = {
+	objects 
+		b0, b1;
+	arrows
+		g : b0 -> b1;
+	equations;
+} 
+
+functor F = {
+	objects 
+		x -> a1;
+	arrows;
+} : O -> A 
+
+functor G = {
+	objects 
+		x -> b0;
+	arrows;
+} : O -> B 
+
+category span = {
+	objects 
+		o, a, b;
+	arrows
+		f : o -> a, g : o -> b;	
+	equations;
+}
+
+functor colimFunctor = {
+	objects
+		o -> O, a -> A, b -> B;
+	arrows
+		f -> F, g -> G;
+} : span -> Cat
+
+category colimCat = colim colimFunctor
+
+/*   colimCat should be
+ category {
+	objects
+		a1, b1, a0;
+	arrows
+		f : a0 -> a1,
+		g : a1 -> b1;
+	equations;
+}
+*/

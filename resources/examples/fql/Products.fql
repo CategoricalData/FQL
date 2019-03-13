@@ -1,0 +1,87 @@
+schema S = {
+	nodes a, b;
+	attributes att : a -> string;
+	arrows f : a -> b;
+	equations;
+}
+
+instance I = {
+nodes a -> {1,2}, b -> {3};
+attributes att -> {(1,common),(2,common)};
+arrows f -> {(1,3),(2,3)};
+} : S
+
+instance J = {
+nodes a -> {a,b,c}, b -> {d,e};
+attributes att -> {(a,common),(b,common),(c,baz)};
+arrows f -> {(a,d),(b,e),(c,e)};
+} : S
+
+instance A = (I * J)
+
+transform K = A.fst
+
+transform L = A.snd
+
+transform M = A.(K * L) //is id
+
+schema X = {
+	nodes a;
+	attributes;
+	arrows;
+	equations;
+}
+
+instance N = unit X
+
+transform O = N.unit N
+
+enum color = {r,g,b}
+enum num = {1,2}
+
+schema C = {
+	nodes a,b,c;
+	attributes attb:b->color, attc:c->num;
+	arrows f:a->b, g:a->c;
+	equations;
+}
+
+instance II = unit C
+
+instance JJ = {
+	nodes a -> {1,2,3}, b -> {1,2}, c -> {1,3};
+	attributes attb -> {(1,r),(2,g)}, attc -> {(1,1),(3,2)};
+	arrows f -> {(1,1),(2,1),(3,2)}, g -> {(1,1),(2,1),(3,3)};
+} : C
+
+transform KK = II.unit JJ
+
+schema SS = {
+	nodes a, b, c;
+	attributes att:a->string;
+	arrows f:a->b, g:b->c, h:a->c;
+	equations a.h = a.f.g;
+}
+
+schema TT = {
+	nodes x, y;
+	attributes att:x->string;
+	arrows u:x->y, z:x->y;
+	equations x.u = x.z;
+}
+
+mapping F = {
+	nodes x -> a, y -> c;
+	attributes att->att;
+	arrows u -> a.f.g, z->a.f.g;
+} : TT -> SS 
+
+schema AA = (SS * TT)
+
+mapping p1 = fst SS TT
+mapping p2 = snd SS TT
+
+mapping p = (p1*p2) //is identity
+
+schema XX = unit {string}
+mapping H = unit {string} TT

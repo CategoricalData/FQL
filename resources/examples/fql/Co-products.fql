@@ -1,0 +1,48 @@
+schema S = {
+	nodes a, b;
+	attributes att : a -> string;
+	arrows f : a -> b;
+	equations;
+}
+
+instance I = {
+nodes a -> {1,2}, b -> {3};
+attributes att -> {(1,one),(2,two)};
+arrows f -> {(1,3),(2,3)};
+} : S
+
+instance J = {
+nodes a -> {a,b,c}, b -> {d,e};
+attributes att -> {(a,foo),(b,bar),(c,baz)};
+arrows f -> {(a,d),(b,e),(c,e)};
+} : S
+
+instance A = (I + J)
+
+transform K = A.inl
+
+transform L = A.inr
+
+transform M = A.(K + L) //is id
+
+instance N = void S
+
+transform O = N.void J
+
+schema C = { nodes a, b; attributes att : a -> string; arrows f : a -> b, g : a -> a; equations a.g = a; }
+
+schema D = { nodes a; attributes att : a -> string; arrows ; equations ; }
+
+schema E = (C + D)
+
+mapping f = inl C D
+
+mapping g = inr C D
+
+mapping h = (f + g) // this is actually the identity!
+
+schema X = void
+
+schema Y = ((C + (C + C)) + void)
+
+mapping q = void C

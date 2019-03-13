@@ -1,0 +1,31 @@
+// should have 4 elements. 
+schema Dihedral2 = {
+ nodes G;
+ attributes;
+ arrows
+	r: G -> G, 
+	s: G -> G;
+ equations
+	G.r.r = G,
+	G.s.s = G,
+	G.s.r.s = G.r;
+}
+
+//alternative presentation 
+ schema Dihedral2x = {
+ nodes G;
+ attributes;
+ arrows
+	r: G -> G, 
+	R0: G -> G, 
+	s: G -> G, 
+	S0: G -> G;
+ equations
+	G.r.R0 = G, 
+	G.R0.r = G, 
+	G.s.S0 = G, 
+	G.S0.s = G,
+	G.r.r = G,
+	G.s.s = G,
+	G.S0.r.s = G.R0;
+} 

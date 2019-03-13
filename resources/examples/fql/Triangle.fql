@@ -1,0 +1,16 @@
+schema C = {
+ nodes 
+ 	A, B, C;
+ attributes;
+ arrows 
+ 	ax : A -> B, bx : B -> C, cx : C -> A; 
+ equations
+	A.ax.bx.cx = A,
+	B.bx.cx.ax = B,
+	C.cx.ax.bx = C;
+}
+
+schema D = opposite C
+
+mapping F = id C
+mapping Fop = opposite F

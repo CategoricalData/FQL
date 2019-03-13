@@ -1,0 +1,46 @@
+schema Graph = {
+	nodes arrow,vertex;
+	attributes;
+	arrows src:arrow->vertex,tgt:arrow->vertex;
+	equations;
+}
+
+//has 4 connected components
+instance G = {
+	nodes arrow->{a,b,c,d,e}, vertex->{t,u,v,w,x,y,z};
+	attributes;
+	arrows
+		src->{(a,t),(b,t),(c,x),(d,y),(e,z)},
+		tgt->{(a,u),(b,v),(c,x),(d,z),(e,y)};
+} : Graph
+
+schema Terminal = {
+	nodes X;
+	attributes;
+	arrows;
+	equations;
+} 
+
+mapping F = {
+	nodes arrow->X, vertex->X;
+	attributes;
+	arrows src->X, tgt->X;
+} : Graph -> Terminal
+
+//has 4 rows
+instance Components=SIGMA F G
+
+//puts 4 rows into vertex, 4 rows into arrow, corresponding to the connected components
+instance I = delta F Components
+
+//gives the transform from the original graph to the connected components
+transform t = I.return
+
+//has 1 row
+instance Loops=pi F G
+
+//puts 1 row into vertex, 1 row into arrow, corresponding to the single loop.
+instance J = delta F Loops
+
+//gives the transform including the subgraph of instances into the original graph.
+transform u = J.coreturn

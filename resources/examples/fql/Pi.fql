@@ -1,0 +1,73 @@
+schema C = {
+ nodes 
+ 	c1, 
+ 	c2;
+ attributes
+	att1 : c1 -> string,
+	att2 : c1 -> string, 
+	att3 : c2 -> string;
+ arrows;
+ equations;
+}
+
+instance I = {
+ nodes
+	c1   -> { 1,2 },
+	c2   -> { 1,2,3 };
+ attributes
+	att1 -> { (1,David), (2,Ryan) },
+	att2 -> { (1,Spivak), (2,Wisnesky) },
+	att3 -> { (1,MIT), (2,Harvard),(3,Leslie) };
+ arrows;
+} : C
+
+schema D = {
+ nodes 
+ 	d;
+ attributes
+ 	a1 : d -> string, 
+ 	a2 : d -> string, 
+ 	a3 : d -> string;
+ arrows;
+ equations;
+}
+
+mapping F = {
+ nodes 
+ 	c1 -> d,
+ 	c2 -> d;
+ attributes
+	att1 -> a1, 
+	att2 -> a2,
+	att3 -> a3;
+ arrows;
+} : C -> D
+
+instance J = pi F I
+
+instance K = delta F J
+
+transform monad_counit = K.coreturn
+
+instance L = pi F K
+
+transform monad_unit = L.return
+
+instance I0 = {
+ nodes
+	c1   -> { 1 },
+	c2   -> { 1,2 };
+ attributes
+	att1 -> { (1,David) },
+	att2 -> { (1,Spivak) },
+	att3 -> { (1,MIT), (2,Harvard) };
+ arrows;
+} : C
+
+transform t = {
+	nodes c1 -> {(1,1)}, c2 -> {(1,1),(2,2)} ;
+} : I0 -> I 
+
+instance J0 = pi F I0
+
+transform t0 = pi J0 J t

@@ -1,0 +1,28 @@
+//Exponentials in C-Set
+
+category C = {
+         objects a, b;
+         arrows  f : a -> b;
+         equations;
+}
+
+functor I = {
+         objects a -> {1,2,3}, b -> {4,5};
+         arrows f -> {(1,4),(2,5),(3,5)};
+} : C -> Set
+
+functor J = {
+         objects a -> {1,2}, b -> {4};
+         arrows f -> {(1,4),(2,4)};
+} : C -> Set
+
+//eta says these two are equal
+functor K = (J^I)
+transform eta_lhs = curry eval J I 
+transform eta_rhs = id K
+
+ //beta says that for any G, G = tr
+functor IJ = (I * J)
+functor one= unit C Set 
+transform G = tt IJ
+transform tr = (((fst I J ; curry G) * snd I J) ; eval unit C Set J)

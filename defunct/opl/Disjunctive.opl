@@ -1,0 +1,61 @@
+
+color : type
+red green blue : color
+
+S = schema {
+	nodes 
+		E;
+	edges
+		att : E -> color; 
+	equations;
+}
+
+T = schema {
+	nodes
+		R, RB, RG;
+	edges
+		r_rb : R -> RB,
+		r_rg : R -> RG,
+		r_att : R -> color;
+	equations
+		r_att = "!_R".red; //if changed to say blue, error occurs in Q
+}
+
+Q = polynomial {
+ R_Q = {for e:E; 
+       where e.att = red ; 
+       attributes r_att=e.att; 
+       edges r_rb = {e1=e} : RB_Q_1,
+             r_rg = {e3=e} : RG_Q_1;} : R,
+
+ RB_Q_1 = {for e1:E; 
+       where e1.att = red ; 
+       attributes; edges;} : RB,
+
+ RB_Q_2 = {for e2:E; 
+       where e2.att = blue ; 
+       attributes; edges;} : RB,
+
+ RG_Q_1 = {for e3:E; 
+       where e3.att = red ; 
+       attributes; edges;} : RG,
+
+ RG_Q_2 = {for e4:E; 
+       where e4.att = green ; 
+       attributes; edges;} : RG
+
+} : S -> T
+
+I = instance {
+	variables
+		r1 r2 g1 g2 b1 b2 : E;
+	equations
+		r1.att = red,
+		r2.att = red,
+		g1.att = green,
+		g2.att = green,
+		b1.att = blue,
+		b2.att = blue;
+} : S
+
+J = apply Q I

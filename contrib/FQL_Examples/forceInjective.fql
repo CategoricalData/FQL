@@ -1,0 +1,47 @@
+//I'm wondering what happens when I take a non-injective function and force it to be an injective map
+//using a left pushforward to the retract schema.
+
+schema C = {
+	nodes E,B;
+	attributes 
+	//ASWRITTEN
+	;
+	arrows s:B->E;
+	equations;
+}
+
+instance I1 = {
+	nodes E->{11,21,22,31,32,33}, B->{1,2,3};
+	attributes 
+	//ASWRITTEN
+	;
+	arrows s->{(1,11),(2,21),(3,31)};
+} : C
+
+instance I2 = {
+	nodes E->{11,21,22,31,32,33}, B->{1,2,311,312};
+	attributes 
+	//ASWRITTEN
+	;
+	arrows s->{(1,11),(2,21),(311,31),(312,31)};
+} : C
+
+schema D = {
+	nodes E,B;
+	attributes 
+	//ASWRITTEN
+	;
+	arrows s:B->E, p:E->B;
+	equations B.s.p=B;
+}
+
+mapping F = {
+	nodes E->E, B->B;
+	attributes 
+	//B_att->B_att, E_att->E_att
+	;
+	arrows s->B.s;
+} : C -> D
+
+instance J1=SIGMA F I1
+instance J2=SIGMA F I2

@@ -1,0 +1,61 @@
+adom:type
+1 2 3 4 5 6:adom
+
+S = schema {
+	nodes A, B;
+	edges f : A -> B, A_att : A -> adom, B_att : B -> adom;
+	equations;
+}
+
+I = instance {
+	variables a1 a2 a3 : A, b1 b2 b3 : B;
+	equations a1.f = b1, a2.f = b1, a3.f = b1, 
+	          a1.A_att=1, a2.A_att=2, a3.A_att=3, 
+	          b1.B_att=4, b2.B_att=5, b3.B_att=6;
+} : S
+
+//we will do this flower by hand
+//J = flower {
+//	select a.A_att as p, b.B_att as q;
+//	from A as a, B as b;
+//	where;
+//} I
+
+//schema for from clause
+S2 = schema {
+	nodes A, B, Q;
+	edges f : A -> B, A_att : A -> adom, B_att : B -> adom, a:Q->A, b:Q->B;
+	equations;
+}
+
+M2 = mapping {
+	nodes A->A, B->B;
+	edges f->f, A_att->A_att, B_att->B_att;
+} : S -> S2 
+
+J2 = pi M2 I //from part
+
+S3 = schema { //schema for select part
+	nodes Q;
+	edges p:Q->adom, q:Q->adom;
+	equations;
+}
+
+M3 = mapping {
+	nodes Q->Q;
+	edges p->a.A_att, q->b.B_att;
+} : S3 -> S2 
+
+//final result
+J3 = delta M3 J2 
+
+////////////////////
+
+Patrick1 = instance {
+	variables var : Q;
+	equations;
+} : S3
+
+Patrick2 = delta M2 sigma M3 Patrick1  //on S
+
+//This is the "canonical" or "frozen" instance for a non-relational conjunctive query!

@@ -1,0 +1,840 @@
+//Example courtesy of Jee Chung
+////////////////////////////////////////////////////////////////////////
+//Configure OPL options
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+preamble = pragma {
+	options
+		"opl_prover_force_prec" = "true", //for success
+		"opl_prover_sort" = "false", //for speed
+		"opl_prover_compose" = "false", //for speed
+		"opl_prover_filter_subsumed" = "false", //for speed
+		"opl_cache_gui" = "true"; //for speed
+}
+
+////////////////////////////////////////////////////////////////////////
+//Type Side
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+Ty = theory {
+	sorts
+		Integer, String, Double, Boolean, Date;
+	symbols
+		"1/1/2011", "9/1/2013", "2/1/2013" : Date,
+		buy, sell : Boolean,
+		"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", 
+		"200", "100", "150", "550", "170", "551", "160" : Integer,
+		Tom, Dick, Harry, "Tom Client", "Dick Client", "Harry Client",
+		Strat1, Strat2, Strat3, Strat4, Strat5, 
+		Strategy1, Strategy2, Strategy3, Strategy4, Strategy5,
+		Port1, Port2, Port3, Portfolio1, Portfolio2, Portfolio3,
+		AU, CH, CN, EU, JP, US,
+		Australia, Switzerland, China, "European Union",
+		Japan, "United States of America",
+		USD, EUR, JYP, "US Dollar", "Euro", "Japanese Yen",
+		A1, A2, A3, A4, A5, A6, A7, A8, A9, A10,
+		Asset1, Asset2, Asset3, Asset4, Asset5, 
+		Asset6, Asset7, Asset8, Asset9, Asset10 : String,
+		"5.51", "5.5", "2.5", "3.5", "1.6", "1.5" : Double;
+	equations;
+}
+
+		
+////////////////////////////////////////////////////////////////////////
+//Input schemas and instances, separately
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+Client = SCHEMA {
+	entities
+		client;
+	edges;
+	attributes
+		client_id : client -> Integer,
+		client_name : client -> String,
+		client_description : client -> String;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+ClientInstance = tables {
+	entities
+		client -> {cc1, cc2, cc3};
+	edges;
+	attributes
+		client_id -> {(cc1,"1"),(cc2,"2"),(cc3,"3")},
+		client_name -> {(cc1,Tom),(cc2,Dick),(cc3,Harry)},
+		client_description -> {(cc1,"Tom Client"),(cc2,"Dick Client"),(cc3,"Harry Client")}; 
+} : Client
+
+////////////////////////////////////////////////////////////////////////
+
+Portfolio = SCHEMA {
+	entities
+		strategy, 
+		portfolio;
+	edges			
+		portfolio_strategy : portfolio -> strategy;			
+	attributes			
+		strategy_id : strategy -> Integer,
+		strategy_name : strategy -> String,
+		strategy_description : strategy -> String,
+		portfolio_id : portfolio -> Integer,
+		portfolio_name : portfolio -> String,
+		portfolio_description : portfolio -> String,
+		portfolio_client_id : portfolio -> Integer,
+		portfolio_strategy_id : portfolio -> Integer;
+	pathEqualities;
+	obsEqualities
+		forall p. p.portfolio_strategy.strategy_id = p.portfolio_strategy_id;
+} : Ty
+
+PortfolioInstance = tables {
+     entities 
+     	strategy -> {ps1, ps2, ps3},
+     	portfolio -> {pp1, pp2, pp3};
+ 	edges
+ 		portfolio_strategy -> {(pp1,ps2),(pp2,ps2),(pp3,ps1)};
+ 	attributes
+ 		strategy_id -> {(ps1,"1"),(ps2,"2"),(ps3,"3")},
+ 		strategy_name -> {(ps1,Strat1),(ps2,Strat2),(ps3,Strat3)},
+ 		strategy_description -> {(ps1,Strategy1),(ps2,Strategy2),(ps3,Strategy3)},    
+ 		portfolio_id -> {(pp1,"1"),(pp2,"2"),(pp3,"3")},
+ 		portfolio_name -> {(pp1,Port1),(pp2,Port2),(pp3,Port3)},
+ 		portfolio_description -> {(pp1,Portfolio1),(pp2,Portfolio2),(pp3,Portfolio3)},
+ 		portfolio_client_id -> {(pp1,"1"),(pp2,"2"),(pp3,"2")},
+ 		portfolio_strategy_id -> {(pp1,"2"),(pp2,"2"),(pp3,"1")};
+} : Portfolio
+
+////////////////////////////////////////////////////////////////////////
+		
+Ref = SCHEMA {
+	entities
+		country, 
+		currency, 
+		asset, 
+		strategy;
+	edges
+		currency_country : currency -> country,
+		asset_strategy : asset -> strategy;
+	attributes	
+		country_id : country -> Integer,
+		country_code : country -> String,
+		country_name : country -> String,
+		asset_id : asset -> Integer,
+		asset_name : asset -> String,
+		asset_description : asset -> String,
+		asset_strategy_id : asset -> Integer,
+		strategy_id : strategy -> Integer,
+		strategy_name : strategy -> String,
+		strategy_description : strategy -> String,
+		currency_id : currency -> Integer,
+		currency_code : currency -> String,
+		currency_name : currency -> String,
+		currency_country_id : currency -> Integer;
+	pathEqualities;
+	obsEqualities	
+		forall c. c.currency_country.country_id = c.currency_country_id,
+		forall a. a.asset_strategy.strategy_id = a.asset_strategy_id;
+} : Ty		
+
+RefInstance = INSTANCE {
+     generators 
+     	rcty1, rcty2, rcty3, rcty4, rcty5, rcty6 : country, 
+		rcur1, rcur2, rcur3 : currency, 
+		ra1, ra2, ra3, ra4, ra5, ra6, ra7, ra8, ra9, ra10 : asset, 
+		rs1, rs2, rs3, rs4, rs5 : strategy;
+     equations	
+ 		rcty1.country_id = "1", rcty1.country_code = AU, rcty1.country_name = Australia, 
+ 		rcty2.country_id = "2", rcty2.country_code = CH, rcty2.country_name = Switzerland, 
+ 		rcty3.country_id = "3", rcty3.country_code = CN, rcty3.country_name = China, 
+ 		rcty4.country_id = "4", rcty4.country_code = EU, rcty4.country_name = "European Union", 
+ 		rcty5.country_id = "5", rcty5.country_code = JP, rcty5.country_name = Japan, 
+ 		rcty6.country_id = "6", rcty6.country_code = US, rcty6.country_name = "United States of America", 
+ 		rcur1.currency_id = "1", rcur1.currency_code = USD, rcur1.currency_name = "US Dollar", rcur1.currency_country_id  = "6", rcur1.currency_country = rcty6, 
+		rcur2.currency_id = "2", rcur2.currency_code = EUR, rcur2.currency_name = "Euro", rcur2.currency_country_id  = "4", rcur2.currency_country = rcty4, 
+		rcur3.currency_id = "3", rcur3.currency_code = JYP, rcur3.currency_name = "Japanese Yen", rcur3.currency_country_id  = "5", rcur3.currency_country = rcty5, 	 		 		
+		ra1.asset_id = "1", ra1.asset_name = A1, ra1.asset_description = Asset1, ra1.asset_strategy_id = "1", ra1.asset_strategy = rs1, 
+		ra2.asset_id = "2", ra2.asset_name = A2, ra2.asset_description = Asset2, ra2.asset_strategy_id = "3", ra2.asset_strategy = rs3,
+		ra3.asset_id = "3", ra3.asset_name = A3, ra3.asset_description = Asset3, ra3.asset_strategy_id = "2", ra3.asset_strategy = rs2,		 
+		ra4.asset_id = "4", ra4.asset_name = A4, ra4.asset_description = Asset4, ra4.asset_strategy_id = "4", ra4.asset_strategy = rs4,
+		ra5.asset_id = "5", ra5.asset_name = A5, ra5.asset_description = Asset5, ra5.asset_strategy_id = "5", ra5.asset_strategy = rs5,
+		ra6.asset_id = "6", ra6.asset_name = A6, ra6.asset_description = Asset6, ra6.asset_strategy_id = "4", ra6.asset_strategy = rs4,
+		ra7.asset_id = "7", ra7.asset_name = A7, ra7.asset_description = Asset7, ra7.asset_strategy_id = "4", ra7.asset_strategy = rs4,
+		ra8.asset_id = "8", ra8.asset_name = A8, ra8.asset_description = Asset8, ra8.asset_strategy_id = "5", ra8.asset_strategy = rs5,
+		ra9.asset_id = "9", ra9.asset_name = A9, ra9.asset_description = Asset9, ra9.asset_strategy_id = "3", ra9.asset_strategy = rs3,
+		ra10.asset_id = "10", ra10.asset_name = A10, ra10.asset_description = Asset10, ra10.asset_strategy_id = "1", ra10.asset_strategy = rs1,
+		rs1.strategy_id = "1", rs1.strategy_name = Strat1, rs1.strategy_description = Strategy1, 
+		rs2.strategy_id = "2", rs2.strategy_name = Strat2, rs2.strategy_description = Strategy2, 
+		rs3.strategy_id = "3", rs3.strategy_name = Strat3, rs3.strategy_description = Strategy3, 
+		rs4.strategy_id = "4", rs4.strategy_name = Strat4, rs4.strategy_description = Strategy4, 
+		rs5.strategy_id = "5", rs5.strategy_name = Strat5, rs5.strategy_description = Strategy5;
+} : Ref
+
+////////////////////////////////////////////////////////////////////////
+		
+Trans = SCHEMA {
+	entities
+		asset, 
+		currency, 
+		transaction;
+	edges
+		transaction_asset : transaction -> asset,
+		transaction_currency : transaction -> currency;
+	attributes	
+		asset_id : asset -> Integer,
+		asset_name : asset -> String,
+		asset_description : asset -> String,
+		currency_id : currency -> Integer,
+		currency_code : currency -> String,
+		currency_name : currency -> String,
+		transaction_id : transaction -> Integer,
+		transaction_asset_id : transaction -> Integer,
+		transaction_portfolio_id : transaction -> Integer,
+		transaction_buy_sell_ind : transaction -> Boolean,
+		transaction_quantity : transaction -> Integer,
+		transaction_price : transaction -> Double,
+		transaction_currency_id : transaction -> Integer;
+	pathEqualities;
+	obsEqualities	
+		forall t. t.transaction_asset.asset_id = t.transaction_asset_id,
+		forall t. t.transaction_currency.currency_id = t.transaction_currency_id;
+} : Ty
+
+TransInstance = INSTANCE {
+     generators 
+		ta1, ta3, ta5, ta7, ta9: asset, 
+		tc1, tc2, tc3: currency, 
+		tt1, tt2, tt3, tt4, tt5, tt6 : transaction;
+     equations
+		ta1.asset_id = "1", ta1.asset_name = A1, ta1.asset_description = Asset1, 
+		ta3.asset_id = "3", ta3.asset_name = A3, ta3.asset_description = Asset3, 
+		ta5.asset_id = "5", ta5.asset_name = A5, ta5.asset_description = Asset5, 
+		ta7.asset_id = "7", ta7.asset_name = A7, ta7.asset_description = Asset7, 
+		ta9.asset_id = "9", ta9.asset_name = A9, ta9.asset_description = Asset9, 
+		tc1.currency_id = "1", tc1.currency_code = USD, tc1.currency_name = "US Dollar", 
+		tc2.currency_id = "2", tc2.currency_code = EUR, tc2.currency_name = Euro, 
+		tc3.currency_id = "3", tc3.currency_code = JYP, tc3.currency_name = "Japanese Yen", 
+		tt1.transaction_id = "1", tt1.transaction_asset_id = "1", tt1.transaction_asset = ta1, tt1.transaction_portfolio_id = "1", tt1.transaction_buy_sell_ind = buy, tt1.transaction_quantity = "200", tt1.transaction_price = "5.51", tt1.transaction_currency_id  = "2", tt1.transaction_currency = tc2, 
+		tt2.transaction_id = "2", tt2.transaction_asset_id = "1", tt2.transaction_asset = ta1, tt2.transaction_portfolio_id = "1", tt2.transaction_buy_sell_ind = sell, tt2.transaction_quantity = "100", tt2.transaction_price = "5.5", tt2.transaction_currency_id  = "2", tt2.transaction_currency = tc2, 
+		tt3.transaction_id = "3", tt3.transaction_asset_id = "3", tt3.transaction_asset = ta3, tt3.transaction_portfolio_id = "2", tt3.transaction_buy_sell_ind = buy, tt3.transaction_quantity = "150", tt3.transaction_price = "2.5", tt3.transaction_currency_id  = "1", tt3.transaction_currency = tc1, 
+		tt4.transaction_id = "4", tt4.transaction_asset_id = "3", tt4.transaction_asset = ta3, tt4.transaction_portfolio_id = "2", tt4.transaction_buy_sell_ind = sell, tt4.transaction_quantity = "150", tt4.transaction_price = "3.5", tt4.transaction_currency_id  = "1", tt4.transaction_currency = tc1, 
+		tt5.transaction_id = "5", tt5.transaction_asset_id = "5", tt5.transaction_asset = ta5, tt5.transaction_portfolio_id = "3", tt5.transaction_buy_sell_ind = buy, tt5.transaction_quantity = "200", tt5.transaction_price = "1.6", tt5.transaction_currency_id  = "3", tt5.transaction_currency = tc3, 
+		tt6.transaction_id = "6", tt6.transaction_asset_id = "5", tt6.transaction_asset = ta5, tt6.transaction_portfolio_id = "3", tt6.transaction_buy_sell_ind = sell, tt6.transaction_quantity = "100", tt6.transaction_price = "1.5", tt6.transaction_currency_id  = "3", tt6.transaction_currency = tc3 ;
+} : Trans
+
+////////////////////////////////////////////////////////////////////////
+
+HoldPos = SCHEMA {
+	entities
+		client, 
+		holding, 
+		position;
+	edges	
+		holding_client : holding -> client,
+		position_client : position -> client;
+	attributes	
+		client_id : client -> Integer,
+		client_name : client -> String,
+		client_description : client -> String,
+		holding_id : holding -> Integer,
+		holding_client_id : holding -> Integer,
+		holding_portfolio_id : holding -> Integer,
+		holding_asset_id : holding -> Integer,
+		holding_quantity : holding -> Integer,
+		holding_purchase_date : holding -> Date,
+		holding_purchase_price : holding -> Double,
+		holding_currency_id : holding -> Integer,
+		position_id : position -> Integer,
+		position_client_id : position -> Integer,
+		position_asset_id : position -> Integer,
+		position_quantity : position -> Integer,
+		position_current_value : position -> Integer,
+		position_current_value_currency_id : position -> Integer,
+		position_cost_basis : position -> Integer,
+		position_cost_basis_currency_id : position -> Integer;
+	pathEqualities;
+	obsEqualities	
+		forall h. h.holding_client.client_id = h.holding_client_id,
+		forall p. p.position_client.client_id = p.position_client_id;
+} : Ty
+
+HoldPosInstance = INSTANCE {
+     generators 
+  		hpc1, hpc2 : client, 
+		hph1, hph2, hph3 : holding, 
+		hpp1, hpp2 : position;
+     equations
+		hpc1.client_id  = "1", hpc1.client_name = Tom, hpc1.client_description = "Tom Client", 
+		hpc2.client_id  = "2", hpc2.client_name = Dick, hpc2.client_description = "Dick Client", 
+		hph1.holding_id = "1", hph1.holding_client_id = "1", hph1.holding_client = hpc1, hph1.holding_portfolio_id = "1", hph1.holding_asset_id = "1", hph1.holding_quantity = "200", hph1.holding_purchase_date = "1/1/2011", hph1.holding_purchase_price = "5.51", hph1.holding_currency_id = "2",
+		hph2.holding_id = "2", hph2.holding_client_id = "2", hph2.holding_client = hpc2, hph2.holding_portfolio_id = "3", hph2.holding_asset_id = "3", hph2.holding_quantity = "150", hph2.holding_purchase_date = "9/1/2013", hph2.holding_purchase_price = "2.5", hph2.holding_currency_id = "1",
+		hph3.holding_id = "3", hph3.holding_client_id = "2", hph3.holding_client = hpc2, hph3.holding_portfolio_id = "3", hph3.holding_asset_id = "5", hph3.holding_quantity = "200", hph3.holding_purchase_date = "2/1/2013", hph3.holding_purchase_price = "1.6", hph3.holding_currency_id = "3",
+		hpp1.position_id = "1", hpp1.position_client_id = "1", hpp1.position_client = hpc1, hpp1.position_asset_id = "1", hpp1.position_quantity = "100", hpp1.position_current_value = "550", hpp1.position_current_value_currency_id = "2", hpp1.position_cost_basis = "551", hpp1.position_cost_basis_currency_id = "2",		
+		hpp2.position_id = "2", hpp2.position_client_id = "2", hpp2.position_client = hpc2, hpp2.position_asset_id = "5", hpp2.position_quantity = "100", hpp2.position_current_value = "170", hpp2.position_current_value_currency_id = "3", hpp2.position_cost_basis = "160", hpp2.position_cost_basis_currency_id = "3";
+} : HoldPos
+
+	
+////////////////////////////////////////////////////////////////////////
+//Linkages between input schemas and instances
+////////////////////////////////////////////////////////////////////////
+//todo: remove name and description attributes from overlaps?
+////////////////////////////////////////////////////////////////////////
+
+ClientHoldPosLinkage = SCHEMA {
+	entities
+		client;
+	edges;
+	attributes
+		client_id : client -> Integer,
+		client_name : client -> String,
+		client_description : client -> String;
+	pathEqualities;
+	obsEqualities;	
+} : Ty
+
+ClientHoldPosLinkageToClient = mapping {
+	sorts
+		client -> client;
+	symbols
+		client_id -> forall c. c.client_id,
+		client_name -> forall c. c.client_name,
+		client_description -> forall c. c.client_description;
+} : ClientHoldPosLinkage -> Client
+
+ClientHoldPosLinkageToHoldPos = mapping {
+	sorts
+		client -> client;
+	symbols
+		client_id -> forall c. c.client_id,
+		client_name -> forall c. c.client_name,
+		client_description -> forall c. c.client_description;
+} : ClientHoldPosLinkage -> HoldPos
+
+ClientHoldPosLinkageInstance = INSTANCE {
+	generators
+		tom, dick : client;
+	equations
+		tom.client_id = "1", 
+		tom.client_name = Tom,
+		tom.client_description = "Tom Client",
+		dick.client_id = "2", 
+		dick.client_name = Dick,
+		dick.client_description = "Dick Client";
+} : ClientHoldPosLinkage
+
+Sigma_ClientHoldPosLinkageToClient_ClientHoldPosLinkageInstance = sigma ClientHoldPosLinkageToClient ClientHoldPosLinkageInstance
+
+ClientHoldPosLinkageInstanceToClientInstance = transpres {
+	sorts
+		client -> {(tom, cc1), (dick, cc2)};
+} : Sigma_ClientHoldPosLinkageToClient_ClientHoldPosLinkageInstance -> ClientInstance
+
+Sigma_ClientHoldPosLinkageToHoldPos_ClientHoldPosLinkageInstance = sigma ClientHoldPosLinkageToHoldPos ClientHoldPosLinkageInstance
+
+ClientHoldPosLinkageInstanceToHoldPosInstance = transpres {
+	sorts
+		client -> {(tom, hpc1), (dick, hpc2)};
+} : Sigma_ClientHoldPosLinkageToHoldPos_ClientHoldPosLinkageInstance -> HoldPosInstance
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PortfolioRefLinkage = SCHEMA {
+	entities
+		strategy;
+	edges;
+	attributes
+		strategy_id : strategy -> Integer,
+		strategy_name : strategy -> String,
+		strategy_description : strategy -> String;
+	pathEqualities;
+	obsEqualities;		
+} : Ty
+
+PortfolioRefLinkageToPortfolio = mapping {
+	sorts
+		strategy -> strategy;
+	symbols
+		strategy_id -> forall c. c.strategy_id,
+		strategy_name -> forall c. c.strategy_name,
+		strategy_description -> forall c. c.strategy_description;
+} : PortfolioRefLinkage -> Portfolio
+
+PortfolioRefLinkageToRef = mapping {
+	sorts
+		strategy -> strategy;
+	symbols
+		strategy_id -> forall c. c.strategy_id,
+		strategy_name -> forall c. c.strategy_name,
+		strategy_description -> forall c. c.strategy_description;	
+} :  PortfolioRefLinkage -> Ref
+
+PortfolioRefLinkageInstance = INSTANCE {
+	generators
+		strat1, strat2, strat3 : strategy; 
+	equations
+		strat1.strategy_id = "1", strat1.strategy_name = Strat1, strat1.strategy_description = Strategy1,
+		strat2.strategy_id = "2", strat2.strategy_name = Strat2, strat2.strategy_description = Strategy2,
+		strat3.strategy_id = "3", strat3.strategy_name = Strat3, strat3.strategy_description = Strategy3;
+} : PortfolioRefLinkage
+
+Sigma_PortfolioRefLinkageToPortfolio_PortfolioRefLinkageInstance = sigma PortfolioRefLinkageToPortfolio PortfolioRefLinkageInstance 
+
+PortfolioRefLinkageInstanceToPortfolioInstance = transpres {
+	sorts
+		strategy -> {(strat1, ps1), (strat2, ps2), (strat3, ps3)};
+} : Sigma_PortfolioRefLinkageToPortfolio_PortfolioRefLinkageInstance -> PortfolioInstance
+
+Sigma_PortfolioRefLinkageToRef_PortfolioRefLinkageInstance = sigma PortfolioRefLinkageToRef PortfolioRefLinkageInstance 
+
+PortfolioRefLinkageInstanceToRefInstance = transpres {
+	sorts
+		strategy -> {(strat1, rs1), (strat2, rs2), (strat3, rs3)};
+
+} : Sigma_PortfolioRefLinkageToRef_PortfolioRefLinkageInstance -> RefInstance
+
+////////////////////////////////////////////////////////////////////////
+
+RefTransLinkage = SCHEMA {
+	entities
+		currency, 
+		asset;
+	edges;
+	attributes
+		currency_id : currency -> Integer,
+		currency_code : currency -> String,
+		currency_name : currency -> String,
+		asset_id : asset -> Integer,
+		asset_name : asset -> String,
+		asset_description : asset -> String;
+	pathEqualities;
+	obsEqualities;	
+} : Ty
+		
+RefTransLinkageToRef = mapping {
+	sorts
+		currency -> currency,
+		asset -> asset;
+	symbols
+		currency_id -> forall c. c.currency_id,
+		currency_code -> forall c. c.currency_code,
+		currency_name -> forall c. c.currency_name,
+		asset_id -> forall a. a.asset_id,
+		asset_name -> forall a. a.asset_name,
+		asset_description -> forall a. a.asset_description;
+} : RefTransLinkage -> Ref	
+		
+RefTransLinkageToTrans = mapping {
+	sorts
+		currency -> currency,
+		asset -> asset;
+	symbols
+		currency_id -> forall c. c.currency_id,
+		currency_code -> forall c. c.currency_code,
+		currency_name -> forall c. c.currency_name,
+		asset_id -> forall a. a.asset_id,
+		asset_name -> forall a. a.asset_name,
+		asset_description -> forall a. a.asset_description;
+} : RefTransLinkage -> Trans
+
+RefTransLinkageInstance = INSTANCE {
+	generators
+		usd, eur, jyp : currency, 
+		one, three, five, seven, nine : asset;
+	equations	
+		usd.currency_id = "1", usd.currency_code = USD, usd.currency_name = "US Dollar",  
+		eur.currency_id = "2", eur.currency_code = EUR, eur.currency_name = "Euro", 
+		jyp.currency_id = "3", jyp.currency_code = JYP, jyp.currency_name = "Japanese Yen", 	 		 		
+	
+		one.asset_id = "1", one.asset_name = A1, one.asset_description = Asset1, 
+		three.asset_id = "3", three.asset_name = A3, three.asset_description = Asset3, 
+		five.asset_id = "5", five.asset_name = A5, five.asset_description = Asset5, 
+		seven.asset_id = "7", seven.asset_name = A7, seven.asset_description = Asset7, 
+		nine.asset_id = "9", nine.asset_name = A9, nine.asset_description = Asset9;
+} : RefTransLinkage
+
+Sigma_RefTransLinkageToRef_RefTransLinkageInstance = sigma RefTransLinkageToRef RefTransLinkageInstance 
+
+RefTransLinkageInstanceToRefInstance = transpres {
+	sorts
+		currency -> {(usd, rcur1), (eur, rcur2), (jyp, rcur3)},
+		asset -> {(one, ra1), (three, ra3), (five, ra5), (seven, ra7), (nine, ra9)};
+} : Sigma_RefTransLinkageToRef_RefTransLinkageInstance -> RefInstance
+
+Sigma_RefTransLinkageToTrans_RefTransLinkageInstance = sigma RefTransLinkageToTrans RefTransLinkageInstance
+
+RefTransLinkageInstanceToTransInstance = transpres {
+	sorts
+		currency -> {(usd, tc1), (eur, tc2), (jyp, tc3)},
+		asset -> {(one, ta1), (three, ta3), (five, ta5), (seven, ta7), (nine, ta9)};
+} : Sigma_RefTransLinkageToTrans_RefTransLinkageInstance -> TransInstance
+
+////////////////////////////////////////////////////////////////////////
+//Schema Colimit computation
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+//the entities and edges should match the names of schemas and mappings already defined.
+ColimitSchemaInput = graph {
+	nodes 
+		Client, 
+		HoldPos, 
+		Portfolio, 
+		Ref, 
+		Trans, 
+		RefTransLinkage,
+		PortfolioRefLinkage,
+		ClientHoldPosLinkage;
+	edges
+		RefTransLinkageToTrans :  RefTransLinkage -> Trans,
+		RefTransLinkageToRef : RefTransLinkage -> Ref,
+		PortfolioRefLinkageToPortfolio : PortfolioRefLinkage -> Portfolio,
+		PortfolioRefLinkageToRef : PortfolioRefLinkage -> Ref,
+		ClientHoldPosLinkageToClient : ClientHoldPosLinkage -> Client,
+		ClientHoldPosLinkageToHoldPos : ClientHoldPosLinkage -> HoldPos;
+}
+
+//OPL can compute the colimit 
+ColimitByOPL = colimit Ty ColimitSchemaInput
+
+//but in this particular case, the colimit schema happens to be presented by the 
+//union of the presentations of the five input schemas.  So for convenience 
+//we will write the colimit by hand.  As an added bonus, in this particular
+//case the mappings into the colimit are all inclusions.
+Colimit = SCHEMA {
+	imports
+		Client, Ref, Trans, Portfolio, HoldPos;
+	entities;
+	edges; 
+	attributes;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+ClientIdentityMapping = ID Client
+
+ClientToColimit = mapping {
+	imports 
+		ClientIdentityMapping;
+	sorts;
+	symbols;
+} : Client -> Colimit 
+
+RefIdentityMapping = ID Ref
+
+RefToColimit = mapping {
+	imports 
+		RefIdentityMapping;
+	sorts;
+	symbols;
+} : Ref -> Colimit 
+
+TransIdentityMapping = ID Trans
+
+TransToColimit = mapping {
+	imports 
+		TransIdentityMapping;
+	sorts;
+	symbols;
+} : Trans -> Colimit 
+
+PortfolioIdentityMapping = ID Portfolio
+
+PortfolioToColimit = mapping {
+	imports 
+		PortfolioIdentityMapping;
+	sorts;
+	symbols;
+} : Portfolio -> Colimit 
+
+HoldPosIdentityMapping = ID HoldPos
+
+HoldPosToColimit = mapping {
+	imports 
+		HoldPosIdentityMapping;
+	sorts;
+	symbols;
+} : HoldPos -> Colimit 
+
+RefTransLinkageIdentityMapping = ID RefTransLinkage
+
+RefTransLinkageToColimit = mapping {
+	imports 
+		RefTransLinkageIdentityMapping;
+	sorts;
+	symbols;
+} : RefTransLinkage -> Colimit 
+
+PortfolioRefLinkageIdentityMapping = ID PortfolioRefLinkage
+
+PortfolioRefLinkageToColimit = mapping {
+	imports 
+		PortfolioRefLinkageIdentityMapping;
+	sorts;
+	symbols;
+} : PortfolioRefLinkage -> Colimit 
+
+
+ClientHoldPosLinkageIdentityMapping = ID ClientHoldPosLinkage
+
+ClientHoldPosLinkageToColimit = mapping {
+	imports 
+		ClientHoldPosLinkageIdentityMapping;
+	sorts;
+	symbols;
+} : ClientHoldPosLinkage -> Colimit 
+
+////////////////////////////////////////////////////////////////////////
+//Instance Colimit computation
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+//we use the mappings from the colimit of schemas to push all our
+//data and data-level linkages onto the colimit schema, then we do a colimit of instances.
+
+ClientInstanceOnColimit = sigma ClientToColimit ClientInstance
+RefInstanceOnColimit = sigma RefToColimit RefInstance
+TransInstanceOnColimit = sigma TransToColimit TransInstance
+PortfolioInstanceOnColimit = sigma PortfolioToColimit PortfolioInstance 
+HoldPosInstanceOnColimit = sigma HoldPosToColimit HoldPosInstance
+RefTransLinkageInstanceOnColimit = sigma RefTransLinkageToColimit RefTransLinkageInstance
+PortfolioRefLinkageInstanceOnColimit = sigma PortfolioRefLinkageToColimit PortfolioRefLinkageInstance
+ClientHoldPosLinkageInstanceOnColimit = sigma ClientHoldPosLinkageToColimit ClientHoldPosLinkageInstance
+
+RefTransLinkageToTransOnColimit = sigma TransToColimit RefTransLinkageInstanceToTransInstance 
+RefTransLinkageToRefOnColimit = sigma RefToColimit RefTransLinkageInstanceToRefInstance
+PortfolioRefLinkageToPortfolioOnColimit = sigma PortfolioToColimit PortfolioRefLinkageInstanceToPortfolioInstance 
+PortfolioRefLinkageToRefOnColimit = sigma RefToColimit PortfolioRefLinkageInstanceToRefInstance 
+ClientHoldPosLinkageToClientOnColimit = sigma ClientToColimit ClientHoldPosLinkageInstanceToClientInstance 
+ClientHoldPosLinkageToHoldPosOnColimit = sigma HoldPosToColimit ClientHoldPosLinkageInstanceToHoldPosInstance
+
+
+//this is the same shape as ColimitSchemaInput, but different names.  
+//mathematically, we would give a shape and then ColimitSchemaInput and
+//ColimitInstanceInput would be schema- and instance- valued functors, respectively,
+//from shape.
+ColimitInstanceInput = graph {
+	nodes 
+		ClientInstanceOnColimit, 
+		HoldPosInstanceOnColimit, 
+		PortfolioInstanceOnColimit, 
+		RefInstanceOnColimit, 
+		TransInstanceOnColimit, 
+		RefTransLinkageInstanceOnColimit,
+		PortfolioRefLinkageInstanceOnColimit,
+		ClientHoldPosLinkageInstanceOnColimit;
+	edges
+		RefTransLinkageToTransOnColimit :  RefTransLinkageInstanceOnColimit -> TransInstanceOnColimit,
+		RefTransLinkageToRefOnColimit : RefTransLinkageInstanceOnColimit -> RefInstanceOnColimit,
+		PortfolioRefLinkageToPortfolioOnColimit : PortfolioRefLinkageInstanceOnColimit -> PortfolioInstanceOnColimit,
+		PortfolioRefLinkageToRefOnColimit : PortfolioRefLinkageInstanceOnColimit -> RefInstanceOnColimit,
+		ClientHoldPosLinkageToClientOnColimit : ClientHoldPosLinkageInstanceOnColimit -> ClientInstanceOnColimit,
+		ClientHoldPosLinkageToHoldPosOnColimit : ClientHoldPosLinkageInstanceOnColimit -> HoldPosInstanceOnColimit;
+} 
+
+//OPL's computation
+ColimitInstanceByOPL = colimit Colimit ColimitInstanceInput
+
+//in this particular case, the colimit instance is presented by the union
+//of the presentations of the input instances and some equations.
+//in general this will not be true.
+ColimitInstance = INSTANCE {
+	imports 
+		ClientInstance, RefInstance, TransInstance, PortfolioInstance, HoldPosInstance;
+	generators;
+	equations
+		ps1 = rs1, ps2 = rs2, ps3 = rs3, //strategy
+ 
+  		rcur1 = tc1, rcur2 = tc2, rcur3 = tc3, //currency
+  		
+  		ta1 = ra1, ta3 = ra3, ta5 = ra5, ta7 = ra7, ta9 = ra9,	//asset
+ 
+		cc1 = hpc1, cc2 = hpc2; //client 
+} : Colimit
+
+
+////////////////////////////////////////////////////////////////////////
+//Desired Target Schema, translated from asset-mgmt-er.pdf
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+//this is the colimit schema plus some extra fks and equations
+Target = SCHEMA {
+	imports
+		Colimit;
+		
+	entities
+		portfolioholding; //NEW	
+		
+	edges
+		portfolio_client : portfolio -> client, //NEW
+
+		position_asset : position -> asset, //NEW
+		
+		position_current_value_currency : position -> currency, //NEW
+		position_cost_basis_currency : position -> currency, //NEW
+		
+		transaction_portfolio : transaction -> portfolio, //NEW
+
+		holding_currency : holding -> currency, //NEW
+		holding_portfolio : holding -> portfolio, //NEW
+
+		portfolioholding_holding : portfolioholding -> holding, //NEW
+		portfolioholding_client : portfolioholding -> client, //NEW 
+		portfolioholding_portfolio : portfolioholding -> portfolio; //NEW
+		
+	attributes
+		//can't have - requires keygen portfolioholding_id : portfolioholding -> Integer, //NEW
+		portfolioholding_holding_id : portfolioholding -> Integer, //NEW
+		portfolioholding_client_id : portfolioholding -> Integer, //NEW
+		portfolioholding_portfolio_id : portfolioholding -> Integer; //NEW
+	
+	pathEqualities
+		forall ph. ph.portfolioholding_holding.holding_client = ph.portfolioholding_client, //NEW
+		forall ph. ph.portfolioholding_portfolio.portfolio_client = ph.portfolioholding_client, //NEW
+		forall ph. ph.portfolioholding_holding.holding_portfolio = ph.portfolioholding_portfolio; //NEW
+
+	obsEqualities
+		forall p. p.portfolioholding_holding.holding_id = p.portfolioholding_holding_id,
+		forall p. p.portfolioholding_client.client_id = p.portfolioholding_client_id,	
+		forall p. p.portfolioholding_portfolio.portfolio_id = p.portfolioholding_portfolio_id;
+} : Ty
+
+
+////////////////////////////////////////////////////////////////////////
+//An uber-flower to migrate from Colim to Target
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+		
+ETL = query {
+	//identity
+	currencyQ = {for c:currency;
+		 where;
+		 return currency_code = c.currency_code,
+			currency_name = c.currency_name,
+			currency_id = c.currency_id,
+			currency_country_id = c.currency_country_id;		 		
+		 keys currency_country = {c = c.currency_country} : countryQ;		
+	} : currency,
+
+	//identity
+	strategyQ = {for s:strategy;
+		 where;
+		 return strategy_name = s.strategy_name,
+		 	strategy_description = s.strategy_description,
+		 	strategy_id = s.strategy_id;
+		 keys;		
+	} : strategy,
+
+	//identity
+	assetQ = {for a:asset;
+		 where;
+		 return asset_id = a.asset_id,
+		 	asset_description = a.asset_description,
+		 	asset_name = a.asset_name,
+		 	asset_strategy_id = a.asset_strategy_id;
+		 keys asset_strategy = {s = a.asset_strategy} : strategyQ; 		
+	} : asset,
+
+	//identity
+	clientQ = {for c:client;
+		 where;
+		 return client_description = c.client_description, 
+			client_name = c.client_name,
+			client_id = c.client_id;
+		 keys;		
+	} : client,
+
+	//identity
+	countryQ = {for c:country;
+		 where;
+		 return country_code = c.country_code,
+		 	country_name = c.country_name,
+		 	country_id = c.country_id;
+		 keys;		
+	} : country,
+
+	//not identity
+	transactionQ = {for t:transaction, p:portfolio, c:client;
+		 where p.portfolio_client_id = c.client_id,
+		 	t.transaction_portfolio_id = p.portfolio_id;
+		 return transaction_id = t.transaction_id, 
+			transaction_asset_id = t.transaction_asset_id, 
+			transaction_buy_sell_ind = t.transaction_buy_sell_ind, 
+			transaction_quantity = t.transaction_quantity,
+			transaction_price = t.transaction_price, 
+			transaction_currency_id = t.transaction_currency_id, 			
+			transaction_portfolio_id = t.transaction_portfolio_id;
+		 keys transaction_currency = {c = t.transaction_currency} : currencyQ, 
+			transaction_asset = {a = t.transaction_asset} : assetQ,  
+			transaction_portfolio = {p = p, c = c} : portfolioQ;	//NEW	
+	} : transaction,
+
+	//not identity
+	positionQ = {for p:position, a:asset, cv:currency, cb:currency;
+		 where p.position_asset_id = a.asset_id,
+		 	p.position_current_value_currency_id = cv.currency_id,
+		 	p.position_cost_basis_currency_id = cb.currency_id;
+		 return position_quantity = p.position_quantity,
+		 	position_current_value = p.position_current_value,
+		 	position_cost_basis = p.position_cost_basis,
+		 	position_id = p.position_id, 
+		 	position_client_id = p.position_client_id,
+		 	position_asset_id = p.position_asset_id,
+		 	position_current_value_currency_id = p.position_current_value_currency_id,
+		 	position_cost_basis_currency_id = p.position_cost_basis_currency_id;
+		 keys position_client = {c = p.position_client} : clientQ,
+			position_asset = {a = a} : assetQ, //NEW
+			position_current_value_currency = {c = cv} : currencyQ, //NEW
+			position_cost_basis_currency = {c = cb} : currencyQ; //NEW
+	} : position,
+
+	//not identity
+	portfolioQ = {for p:portfolio, c:client;
+		 where p.portfolio_client_id = c.client_id;
+		 return portfolio_name = p.portfolio_name,
+		 	portfolio_description = p.portfolio_description,
+		 	portfolio_id = p.portfolio_id,
+		 	portfolio_strategy_id = p.portfolio_strategy_id,
+		 	portfolio_client_id = p.portfolio_client_id; 
+		 keys portfolio_strategy = {s=p.portfolio_strategy} : strategyQ,
+			portfolio_client = {c = c} : clientQ; //NEW
+	} : portfolio,
+
+	//not identity
+	holdingQ = {for h:holding, c:currency, p:portfolio;
+		 where h.holding_currency_id = c.currency_id,
+		 	h.holding_portfolio_id = p.portfolio_id,
+		 	p.portfolio_client_id = client_id(holding_client(h));
+		 return holding_id = h.holding_id,			
+			holding_asset_id = h.holding_asset_id,
+			holding_currency_id  = h.holding_currency_id, 
+			holding_purchase_price  = h.holding_purchase_price, 
+			holding_quantity  = h.holding_quantity, 
+			holding_purchase_date  = h.holding_purchase_date, 
+			holding_client_id  = h.holding_client_id, 
+			holding_portfolio_id  = h.holding_portfolio_id;
+		 keys holding_currency = {c = c} : currencyQ, //NEW
+			holding_client = {c = h.holding_client} : clientQ, 
+			holding_portfolio = {p = p, c = h.holding_client} : portfolioQ; //NEW	
+	} : holding,
+ 
+	//not identity
+	portfolioholdingQ = {for h:holding, p:portfolio, cur:currency;
+		 where h.holding_currency_id = cur.currency_id,
+		 	p.portfolio_client_id = h.holding_client.client_id,
+		 	h.holding_portfolio_id = p.portfolio_id;
+		 return portfolioholding_holding_id = h.holding_id,
+			portfolioholding_client_id = h.holding_client.client_id,
+			portfolioholding_portfolio_id = p.portfolio_id;
+		 keys portfolioholding_holding = {h = h, c = cur, p = p} : holdingQ, 
+		portfolioholding_client = {c = h.holding_client} : clientQ, 
+		portfolioholding_portfolio = {p = p, c = h.holding_client} : portfolioQ;		
+	} : portfolioholding
+	
+} : Colimit -> Target	
+
+Output = apply ETL ColimitInstance

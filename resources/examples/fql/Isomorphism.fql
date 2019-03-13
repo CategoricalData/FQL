@@ -1,0 +1,12 @@
+schema C = { 
+ nodes A, B;
+ attributes;
+ arrows f : A -> B , g : B -> A;
+ equations A.f.g = A, B.g.f = B; 
+}
+
+instance I   = {
+ nodes A -> {1,2}, B -> {a,b};
+ attributes;
+ arrows f -> {(1,a),(2,b)}, g -> {(a,1),(b,2)};
+} : C

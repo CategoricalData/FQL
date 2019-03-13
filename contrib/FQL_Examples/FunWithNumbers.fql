@@ -1,0 +1,130 @@
+/*
+ * The arrow-chain schemas have trianglular numbers of morphisms 1, 3, 6, 10,....
+ * https://oeis.org/A000217
+ * They have tetrahedral numbers of composable morphisms, 1, 4, 10, 20,....
+ * https://oeis.org/A000292
+ */
+
+
+schema D0 = {
+	nodes b0;
+	attributes;
+	arrows;
+	equations;
+}
+
+schema D1 = {
+	nodes b0, b1;
+	attributes;
+	arrows bf1 : b0 -> b1;
+	equations;
+}
+
+schema D2 = {
+	nodes b0, b1, b2;
+	attributes;
+	arrows bf1 : b0 -> b1, bf2 : b1 -> b2;
+	equations;
+}
+
+schema D3 = {
+	nodes b0, b1, b2, b3;
+	attributes;
+	arrows bf1 : b0 -> b1, bf2 : b1 -> b2, bf3: b2->b3;
+	equations;
+}
+
+schema D4 = {
+	nodes b0, b1, b2, b3, b4;
+	attributes;
+	arrows bf1 : b0 -> b1, bf2 : b1 -> b2, bf3: b2->b3, bf4:b3->b4;
+	equations;
+}
+
+/*
+ * The retract schemas have as number of morphisms 1^2+2^2+...+n^2.
+ * https://oeis.org/A000330
+ * They have as number of composable morphisms something related to pythagorean triples.
+ * https://oeis.org/A085461
+ */
+
+
+schema ret1 = {
+	nodes a0, a1;
+	attributes;
+	arrows s0:a0->a1, r1:a1->a0;
+	equations a0.s0.r1=a0;
+}
+
+schema ret2 = {
+	nodes a0,a1, a2;
+	attributes;
+	arrows 
+		s0:a0->a1, 
+		r1:a1->a0,
+		s1:a1->a2, 
+		r2:a2->a1;
+	equations 
+		a0.s0.r1=a0,
+		a1.s1.r2=a1;
+}
+
+schema ret3 = {
+	nodes a0,a1, a2,a3;
+	attributes;
+	arrows 
+		s0:a0->a1, 
+		r1:a1->a0,
+		s1:a1->a2, 
+		r2:a2->a1,
+		s2:a2->a3,
+		r3:a3->a2;
+	equations 
+		a0.s0.r1=a0,
+		a1.s1.r2=a1,
+		a2.s2.r3=a2;
+}
+
+schema ret4 = {
+	nodes a0,a1, a2,a3,a4;
+	attributes;
+	arrows 
+		s0:a0->a1, 
+		r1:a1->a0,
+		s1:a1->a2, 
+		r2:a2->a1,
+		s2:a2->a3,
+		r3:a3->a2,
+		s3:a3->a4,
+		r4:a4->a3;
+
+	equations 
+		a0.s0.r1=a0,
+		a1.s1.r2=a1,
+		a2.s2.r3=a2,
+		a3.s3.r4=a3;
+}
+
+schema ret5 = {
+	nodes a0,a1, a2,a3,a4,a5;
+	attributes;
+	arrows 
+		s0:a0->a1, 
+		r1:a1->a0,
+		s1:a1->a2, 
+		r2:a2->a1,
+		s2:a2->a3,
+		r3:a3->a2,
+		s3:a3->a4,
+		r4:a4->a3,
+		s4:a4->a5,
+		r5:a5->a4;
+	equations 
+		a0.s0.r1=a0,
+		a1.s1.r2=a1,
+		a2.s2.r3=a2,
+		a3.s3.r4=a3,
+		a4.s4.r5=a4;
+}
+
+

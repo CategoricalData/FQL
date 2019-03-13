@@ -1,0 +1,48 @@
+schema s = {
+	nodes a, b; 
+	attributes att : a -> string; 
+	arrows f : b -> a; 
+	equations;
+}
+
+instance i = {
+	nodes a -> {1,2,3}, b -> {4}; 
+     attributes att -> {(1,1),(2,2),(3,3)}; 
+     arrows f -> {(4,1)};
+} : s
+              
+instance j = {
+	nodes a -> {a,b}, b -> {}; 
+ 	attributes att -> {(a,a),(b,b)}; 
+ 	arrows f -> {};
+ } : s
+
+transform g = id i
+
+instance ij0 = (i * j)
+
+transform ij0fst = ij0.fst
+
+transform ij0snd = ij0.snd
+
+transform ij00 = ij0.(ij0fst * ij0snd)
+
+instance ij = (i + j)
+
+transform ijinl = ij.inl
+
+transform ijinr = ij.inr
+
+transform ij0X = ij.(ijinl + ijinr)
+
+instance II = void s
+
+transform t1 = II.void j
+
+schema t = {nodes a; attributes; arrows; equations;}
+
+instance tx = unit t
+
+instance tj = {nodes a -> {a,b,c}; attributes; arrows;} : t
+
+transform JJ = tx.unit tj

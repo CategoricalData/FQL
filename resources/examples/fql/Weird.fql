@@ -1,0 +1,83 @@
+schema Z2 = {
+ nodes 
+ 	G; 
+ attributes
+ 	att1: G->string;
+ arrows 
+ 	r: G -> G;
+ equations
+	G.r.r = G;
+}
+
+schema Z4 = {	
+ nodes
+ 	G;
+ attributes
+ 	 attr1:G->string;
+ arrows
+ 	r: G -> G;
+ equations
+	G.r.r.r.r = G;
+}
+
+mapping F = {
+ nodes
+ 	G->G;
+ attributes
+ 	att1->attr1;
+ arrows
+	r->G.r.r;
+} : Z2 -> Z4
+
+
+instance I0 = {
+nodes
+ 	G->{1,2};
+ attributes
+	att1->{(1,1),(2,2)};
+ arrows
+ 	r->{(1,2),(2,1)};
+} : Z2
+instance Pi_FI0 = pi F I0
+
+
+instance I1 = {
+ nodes
+ 	G->{a0,1,2};
+ attributes
+ 	att1->{(1,1),(2,2),(a0,a0)};
+ arrows
+	r->{(a0,a0),(1,2),(2,1)};
+} : Z2
+instance Pi_FI1 = pi F I1
+
+
+instance I2 = {
+ nodes
+ 	G->{a0,b0,1,2};
+ attributes
+ 	att1->{(1,1),(2,2),(a0,a0),(b0,b0)};
+ arrows
+	r->{(a0,a0),(b0,b0),(1,2),(2,1)};
+} : Z2
+instance Pi_FI2 = pi F I2
+
+instance I3 = {
+ nodes
+ 	G->{a0,b0,c0,1,2};
+ attributes
+ 	att1->{(1,1),(2,2),(a0,a0),(b0,b0),(c0,c0)};
+ arrows
+ 	r->{(a0,a0),(b0,b0),(c0,c0),(1,2),(2,1)};
+} : Z2
+instance Pi_FI3 = pi F I3
+
+instance I4 = {
+ nodes
+ 	G->{a0,b0,c0,d0,1,2};
+ attributes
+ 	att1->{(1,1),(2,2),(a0,a0),(b0,b0),(c0,c0),(d0,d0)};
+ arrows
+ 	r->{(a0,a0),(b0,b0),(c0,c0),(d0,d0),(1,2),(2,1)};
+} : Z2
+instance Pi_FI4 = pi F I4

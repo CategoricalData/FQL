@@ -1,0 +1,118 @@
+schema S1 = {
+	nodes a;
+	attributes;
+	arrows;
+	equations;
+}
+
+schema S2 = {
+	nodes a;
+	attributes;
+	arrows r12:a->a;
+	equations a.r12.r12=a;
+}
+
+mapping F = {
+	nodes a->a;
+	attributes;
+	arrows;
+} : S1 -> S2
+
+instance X = {
+	nodes a->{1,2,3};
+	attributes;
+	arrows;
+} :  S1
+
+instance Y=SIGMA F X
+
+
+schema S2S3 = {
+	nodes a;
+	attributes;
+	arrows r12:a->a, r34:a->a, r45:a->a;
+	equations 
+		a.r12.r12=a, 
+		a.r34.r34=a, a.r45.r45=a, a.r34.r45.r34=a.r45.r34.r45,
+		a.r12.r34=a.r34.r12, a.r12.r45=a.r45.r12;
+}
+
+schema S3 = {
+	nodes a;
+	attributes;
+	arrows r12:a->a, r23:a->a;
+	equations a.r12.r12=a, a.r23.r23=a, a.r12.r23.r12=a.r23.r12.r23;
+}
+
+instance  I2 = {
+	nodes a->{x,y};
+	attributes;
+	arrows r12->{(x,y),(y,x)};
+} : S2
+
+/*
+ * instance  I2 = {
+ *	nodes a->{x,y,z};
+ *	attributes;
+ *	arrows r12->{(x,y),(y,x),(z,z)};
+ * } : S2
+*/
+
+instance I3 = {
+	nodes a->{xyz,xzy,yxz,yzx,zxy,zyx};
+	attributes;
+	arrows 
+		r12->{(xyz,yxz),(xzy,zxy),(yxz,xyz),(yzx,zyx),(zxy,xzy),(zyx,yzx)},
+		r23->{(xyz,xzy),(xzy,xyz),(yxz,yzx),(yzx,yxz),(zxy,zyx),(zyx,zxy)};
+} :  S3
+
+/*
+ * instance I3 = {
+ *	nodes a->{xxy,xyx,yxx};
+ *	attributes;
+ *	arrows r12->{(xxy,xxy),(xyx,yxx), (yxx,xyx)}, r23->{(xxy,xyx),(xyx,xxy),(yxx,yxx)};
+ *} :  S3
+ */
+
+
+mapping p2 = {
+	nodes a->a;
+	attributes;
+	arrows r12->a.r12, r34->a, r45->a;
+} : S2S3 -> S2
+
+mapping p3 = {
+	nodes a->a;
+	attributes;
+	arrows r12->a, r34->a.r12, r45->a.r23;
+} : S2S3 -> S3
+
+instance J2 = delta p2 I2
+
+instance J3 = delta p3 I3
+
+instance J= (J2 * J3)
+
+schema S5 = {
+	nodes a;
+	attributes;
+	arrows r12:a->a, r23:a->a, r34:a->a, r45:a->a;
+	equations 
+		a.r12.r12=a, a.r23.r23=a, a.r34.r34=a, a.r45.r45=a,
+		a.r12.r34=a.r34.r12, a.r12.r45=a.r45.r12, a.r23.r45=a.r45.r12,
+		a.r12.r23.r12=a.r23.r12.r23, a.r23.r34.r23=a.r34.r23.r34,
+		a.r34.r45.r34=a.r45.r34.r45
+		;
+}
+
+mapping G = {
+	nodes a->a;
+	attributes;
+	arrows r12->a.r12, r34->a.r34, r45->a.r45;
+} : S2S3 -> S5
+
+instance K=SIGMA G J
+
+instance JJ=delta G K
+
+transform t= JJ.return

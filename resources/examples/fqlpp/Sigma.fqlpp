@@ -1,0 +1,95 @@
+category C = {
+	objects 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal,
+		string;
+	arrows
+		attA : Amphibian -> string, 
+		attL:LandAnimal-> string, 
+		attW:WaterAnimal->string,
+		IsAL:Amphibian->LandAnimal,
+		IsAW:Amphibian->WaterAnimal;
+	equations;
+}
+
+functor I = {
+	objects 
+		Amphibian->{1,2},
+		LandAnimal->{1,2,3,4,5},
+		WaterAnimal->{1,2,3,4},
+		string->{gecko,frog,human,cow,horse,dolphin,fish};
+	arrows
+		attA -> {(1,gecko),(2, frog)}, 
+		attL ->{(1,gecko),(2,frog),(3,human),(4,cow),(5,horse)},
+		attW -> {(1,fish),(2,gecko),(3,frog),(4,dolphin)},
+		IsAL->{(1,1),(2,2)},
+		IsAW->{(1,2),(2,3)};
+} : C -> Set
+
+functor I0 = {
+	objects 
+		Amphibian->{x1},
+		LandAnimal->{x1,x2,x3,x4},
+		WaterAnimal->{x1,x2,x3},
+		string->{xgecko,xfrog,xhuman,xcow,xfish};
+	arrows 
+		attA -> {(x1,xgecko)}, 
+		attL ->{(x1,xgecko),(x2,xfrog),(x3,xhuman),(x4,xcow)},
+		attW -> {(x1,xfish),(x2,xgecko),(x3,xfrog)},
+		IsAL->{(x1,x1)},
+		IsAW->{(x1,x2)};
+} : C -> Set
+
+transform t = {
+	objects 
+		Amphibian->{(x1,1)},
+		LandAnimal->{(x1,1),(x2,2),(x3,3),(x4,4)},
+		WaterAnimal->{(x1,1),(x2,2),(x3,3)},
+		string -> {(xgecko,gecko),(xfrog,frog),(xhuman,human),(xcow,cow),(xfish,fish)};
+} : (I0:C->Set) -> (I:C->Set)
+
+category D ={
+	objects 
+		yAmphibian,
+		yLandAnimal,
+		yWaterAnimal,
+		yAnimal,
+		ystring;
+	arrows
+		yattA:yAmphibian -> ystring, 
+		yattL:yLandAnimal-> ystring, 
+		yattW:yWaterAnimal->ystring,
+		yIsAL:yAmphibian->yLandAnimal,
+		yIsAW:yAmphibian->yWaterAnimal,
+		yIsALL:yLandAnimal->yAnimal,
+		yIsAWW:yWaterAnimal->yAnimal;
+	equations
+		yAmphibian.yIsAL.yIsALL=yAmphibian.yIsAW.yIsAWW;
+}
+
+functor F = {
+	objects 
+		Amphibian->yAmphibian,
+		LandAnimal->yLandAnimal,
+		WaterAnimal->yWaterAnimal,
+		string->ystring;
+	arrows
+		attA -> yAmphibian.yattA, 
+		attL -> yLandAnimal.yattL, 
+		attW -> yWaterAnimal.yattW,
+		IsAL -> yAmphibian.yIsAL,
+		IsAW -> yAmphibian.yIsAW;
+} : C -> D
+
+functor sigma_FI = apply sigma F on object I
+
+functor sigma_FI0 = apply sigma F on object I0
+	
+transform t0 = apply sigma F on arrow t
+
+
+functor deltasigmaI = apply delta F on object sigma_FI
+transform monad_unit = apply return sigma delta F on deltasigmaI
+functor sigmadeltasigmaI = apply sigma F on object deltasigmaI
+transform monad_counit = apply coreturn sigma delta F on sigmadeltasigmaI

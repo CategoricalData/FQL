@@ -1,0 +1,128 @@
+//This FQL program shows how to implement the EDs of Example 2 in "Functorial Schema Mapping" paper.
+
+/* 
+ * Begin with an instance I1 on the loop schema. We will produce three instances on the unit schema.
+ * The instance Managers will be the set of people that manage someone.
+ * The instance QuidProQuo will be the set of pairs (A,B) such that A manages B and B manages A.
+ *    Note, this includes those (A,A) where A manages A.
+ * The instance InhabitedEmp will be empty if Emp is empty, and have one element otherwise.
+ */
+
+schema Loop = {
+	nodes N;
+	attributes;
+	arrows f:N->N;
+	equations N.f.f.f.f=N.f.f;
+}
+
+instance I1 = {
+	nodes N->{i1,i2,i3,i4,i5,i6,i7};
+	attributes;
+	arrows f->{(i1,i2),(i2,i3),(i3,i4),(i4,i3),(i5,i5),(i6,i7),(i7,i7)};
+} :  Loop
+
+schema Arrow = {
+	nodes a,b;
+	attributes;
+	arrows f:a->b;
+	equations;
+}
+
+mapping Arr2Loo = {
+	nodes a->N, b->N;
+	attributes;
+	arrows f->N.f;
+} : Arrow -> Loop
+
+instance I2=delta Arr2Loo I1
+
+schema Cospan = {
+	nodes a1,a2,b;
+	attributes;
+	arrows f1:a1->b, f2:a2->b;
+	equations;
+}
+
+mapping Cos2Arr = {
+	nodes a1->a, a2->a, b->b;
+	attributes;
+	arrows f1->a.f, f2->a.f;
+} : Cospan -> Arrow
+
+instance I3=delta Cos2Arr I2
+
+schema Square = {
+	nodes NW,NE,SW,SE;
+	attributes;
+	arrows n:NW->NE,w:NW->SW,e:NE->SE,s:SW->SE;
+	equations NW.n.e=NW.w.s;
+}
+
+mapping Cos2Squ = {
+	nodes a1->NE,a2->SW,b->SE;
+	attributes;
+	arrows f1->NE.e,f2->SW.s;
+} : Cospan -> Square
+
+instance I4 = pi Cos2Squ I3
+
+schema Span = {
+	nodes a,b1,b2;
+	attributes;
+	arrows f1:a->b1,f2:a->b2;
+	equations;
+}
+
+mapping Spa2Squ = {
+	nodes a->NW,b1->NE,b2->SW;
+	attributes;
+	arrows f1->NW.n,f2->NW.w;
+} : Span -> Square
+
+instance I5 = delta Spa2Squ I4
+
+mapping USpan=unit {} Span 
+
+//Managers
+
+instance Managers=SIGMA USpan I5
+
+schema TwoNodeLoop = {
+	nodes a,b;
+	attributes;
+	arrows f:a->b,g:b->a;
+	equations a.f.g.f.g=a.f.g,b.g.f.g.f=b.g.f;
+}  
+
+mapping Two2Loo = {
+	nodes a->N,b->N;
+	attributes;
+	arrows f->N.f,g->N.f;
+} : TwoNodeLoop -> Loop
+
+instance I6=delta Two2Loo I1
+
+mapping UTwo = unit {} TwoNodeLoop
+
+//QuidProQuo
+
+instance QuidProQuo = pi UTwo I6
+
+schema T = {
+	nodes N;
+	attributes;
+	arrows;
+	equations;
+}
+
+mapping T2Loop = {
+	nodes N->N;
+	attributes;
+	arrows;
+} : T -> Loop
+
+instance I7=delta T2Loop I1
+
+//InhabitedEmp
+
+instance InhabitedEmp=relationalize I7

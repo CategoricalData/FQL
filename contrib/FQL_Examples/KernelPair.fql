@@ -1,0 +1,77 @@
+schema Arrow = {
+	nodes a,b;
+	attributes;
+	arrows f:a->b;
+	equations;
+}
+
+instance I = {
+	nodes a->{i11,i21,i22,i23},b->{j0,j1,j2};
+	attributes;
+	arrows f->{(i11,j1),(i21,j2),(i22,j2),(i23,j2)};
+} :  Arrow
+
+schema C = {
+	nodes a1,a2,b;
+	attributes;
+	arrows f1:a1->b, f2:a2->b,g:a1->a2,h:a2->a1;
+	equations a1.g.h=a1,a2.h.g=a2;
+}
+
+mapping C2Arr = {
+	nodes a1->a, a2->a, b->b;
+	attributes;
+	arrows f1->a.f, f2->a.f, g->a,h->a;
+} : C -> Arrow
+
+instance J=delta C2Arr I
+
+schema D = {
+	nodes NW,NE,SW,SE;
+	attributes;
+	arrows n:NW->NE,w:NW->SW,e:NE->SE,s:SW->SE,g:NE->SW,h:SW->NE;
+	equations NW.n.e=NW.w.s, NE.g.h=NE, SW.h.g=SW;
+}
+
+mapping C2D = {
+	nodes a1->NE,a2->SW,b->SE;
+	attributes;
+	arrows f1->NE.e,f2->SW.s, g->NE.g,h->SW.h;
+} : C -> D
+
+instance K=pi C2D J
+
+
+schema E = {
+	nodes a,b1,b2;
+	attributes;
+	arrows f1:a->b1,f2:a->b2,g:b1->b2,h:b2->b1;
+	equations b1.g.h=b1,b2.h.g=b2;
+}
+
+mapping E2D = {
+	nodes a->NW,b1->NE,b2->SW;
+	attributes;
+	arrows f1->NW.n,f2->NW.w,g->NE.g, h->SW.h;
+} : E -> D
+
+instance L=delta E2D K
+
+schema Parallel = {
+	nodes a,b;
+	attributes;
+	arrows f1:a->b,f2:a->b;
+	equations;
+}
+
+mapping E2Par = {
+	nodes a->a,b1->b,b2->b;
+	attributes;
+	arrows f1->a.f1,f2->a.f2, g->b,h->b;
+} : E -> Parallel
+
+instance M=pi E2Par L
+
+mapping F=unit{} Parallel
+
+instance N=SIGMA F M

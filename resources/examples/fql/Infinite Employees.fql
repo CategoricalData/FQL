@@ -1,0 +1,42 @@
+/* This is an example of an infinite schema. To compile it, 
+  - check 'allow infinte schemas' in the options menu
+  - set 'maximum category iterations' to a low value like 400
+*/
+schema S = { 
+ nodes
+ 	Employee, Department, FirstName, LastName, DepartmentName;
+ attributes;
+ arrows
+	manager   : Employee -> Employee,
+  	worksIn   : Employee -> Department,
+  	secretary : Department -> Employee,
+  	name      : Department -> DepartmentName,
+  	first     : Employee -> FirstName,
+  	last      : Employee -> LastName;
+ equations
+  	Employee.manager.worksIn = Employee.worksIn,
+  	Department.secretary.worksIn = Department;
+}
+
+instance I = {
+ nodes
+ 	FirstName      -> { Alan, Alice,  Andrey, Camille, David },
+ 	LastName       -> { Arden, Hoover, Jordan, Markov, Turing },
+  	DepartmentName -> { AppliedMath, Biology, PureMath },
+	Employee       -> { 101, 102, 103 },
+	Department     -> { q10, x02 };
+ attributes;
+ arrows
+	first     -> { (101, Alan), (102, Camille), (103, Andrey) },
+	last      -> { (101, Turing),(102, Jordan), (103, Markov) },
+	manager   -> { (101, 103), (102, 102), (103, 103) },
+	worksIn   -> { (101, q10), (102, x02), (103, q10) },
+	name      -> { (q10, AppliedMath), (x02, PureMath) },
+	secretary -> { (q10, 101), (x02, 102) };
+} : S
+
+
+//delta and SIGMA migrations on infinite schemas are possible
+mapping F = id S
+instance J = delta F I
+instance K = SIGMA F I

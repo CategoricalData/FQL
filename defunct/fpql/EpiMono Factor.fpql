@@ -1,0 +1,69 @@
+//This FPQL program finds the image of any function, i.e., the epi-mono factorization.
+
+//Schema A is where you put your function (as an instance).
+
+A = schema {
+	nodes c, x;
+	edges f:c->x;
+	equations;
+}
+
+//Schemas B and C are just auxilliary schemas to perform our calculation.
+
+B = schema {
+	nodes c1,c2,c,x;
+	edges f1:c1->x, f2:c2->x, f:c->x, g1:c1->c, g2:c2->c;
+	equations f1=g1.f, f2=g2.f;
+}
+
+C = schema {
+	nodes k,c1,c2,c,x;
+	edges 
+		f1:c1->x, f2:c2->x, f:c->x, g1:c1->c, g2:c2->c,
+		h1:k->c1, h2:k->c2
+		;
+	equations f1=g1.f, f2=g2.f, h1.f1=h2.f2;
+}
+
+//Schema D is where the result will show up.
+
+D = schema {
+	nodes k,c,image,x;
+	edges h1:k->c, h2:k->c, quotient:c->image,f:image->x;
+	equations h1.quotient=h2.quotient;
+}
+
+F = mapping {
+	nodes c1->c,c2->c,c->c,x->x;
+	edges f1->f, f2->f, f->f, g1->c,g2->c;
+}
+ : B -> A
+
+G= mapping {
+	nodes c1->c1,c2->c2,c->c,x->x;
+	edges f1->f1, f2->f2,f->f, g1->g1,g2->g2;
+}
+ : B -> C
+
+H= mapping {
+	nodes k->k, c1->c, c2->c,c->c,x->x;
+	edges f1->quotient.f, f2->quotient.f,f->quotient.f, g1->c,g2->c,h1->h1,h2->h2;
+}
+ : C -> D
+
+//Any function can go here: 
+
+func = instance {
+	variables x11 x12 x13 x21 x22:c, y1 y2 y3:x;
+	equations x11.f=y1, x12.f=y1,x13.f=y1,x21.f=y1,x22.f=y2;
+}
+ :  A
+
+setup = delta F func
+
+pullback = pi G setup
+
+//the following instance is the result of our epi-mono factorization.
+//k contains the kernel, and the functions c->image->x is the epi-mono factorization of f.
+
+epimono = sigma H pullback

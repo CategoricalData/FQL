@@ -1,0 +1,117 @@
+/* for better performance, disable: 
+ *  - observables, elements, rdf for instances
+ *  - graph for transforms
+ */
+
+enum dname = {AppliedMath, PureMath}
+enum fname = {Alan, Camille, Andrey}
+
+schema S = { 
+ nodes
+ 	Employee, Department;
+ attributes
+	name  : Department -> dname,
+ 	first : Employee -> fname;
+ arrows
+	manager   : Employee -> Employee,
+	worksIn   : Employee -> Department,
+	secretary : Department -> Employee;
+ equations  
+  	Employee.manager.worksIn = Employee.worksIn,
+  	Department.secretary.worksIn = Department,
+  	Employee.manager.manager = Employee.manager;
+}
+
+instance J = {
+ nodes
+	Employee -> { 101, 102, 103 },
+	Department -> { q10, x02 };
+ attributes
+	first -> { (101, Alan), (102, Camille), (103, Andrey) },
+	name  -> { (q10, AppliedMath), (x02, PureMath) };
+ arrows
+	manager -> { (101, 101), (102, 102), (103, 103) },
+	worksIn -> { (101, q10), (102, x02), (103, q10) },
+	secretary -> { (q10, 101), (x02, 102) };
+} : S
+
+instance I = {
+ nodes
+	Employee -> { 101, 102 },
+	Department -> { q10, x02 };
+ attributes
+	first -> { (101, Alan), (102, Camille) },
+	name  -> { (q10, AppliedMath), (x02, PureMath) };
+ arrows
+	manager -> { (101, 101), (102, 102) },
+	worksIn -> { (101, q10), (102, x02) },
+	secretary -> { (q10, 101), (x02, 102) };
+} : S
+
+transform t = {
+	nodes 
+		Employee -> { (101,101), (102,102) },
+		Department -> { (q10,q10), (x02,x02) }
+	;
+} : I -> J
+
+instance prp = prop S
+instance one = unit S
+
+transform tru = prp.true one // true
+transform fals = prp.false one // false
+
+transform char_t = prp.char t
+
+//these two transforms are equal
+transform lhs = (t then char_t)
+transform rhs = (one.unit I then tru)
+
+instance ker = kernel char_t
+transform char_t2 = ker.kernel
+//I and ker are isomorphic
+
+// Propositional logic ///////////////////////////////////////
+
+// Encoding set difference using negation and and
+
+enum e = {a,b,c,d}
+
+schema X = {
+	nodes n;
+	attributes att : n -> e;
+	arrows;
+	equations;
+}
+
+instance F1 = {
+	nodes n -> {0,1,2};
+	attributes att -> {(0,d),(1,a),(2,b)};
+	arrows;
+} : X
+
+instance F2 = {
+	nodes n -> {1,2};
+	attributes att -> {(1,b),(2,c)};
+	arrows;
+} : X
+
+instance tprp = prop X
+instance tone = unit X
+
+instance prpprp = (tprp * tprp)
+
+transform F1t = tone.unit F1
+transform F2t = tone.unit F2
+
+transform chiF1t = tprp.char F1t
+transform chiF2t = tprp.char F2t
+transform negchiF2t = (tprp.char F2t then tprp.not)
+
+transform t0 = prpprp.(chiF1t * negchiF2t)
+transform t1 = (t0 then prpprp.and)
+
+instance F1minusF2 = kernel t1
+
+transform t2 = (t0 then prpprp.or) //or
+transform t3 = (t0 then prpprp.implies) //implies

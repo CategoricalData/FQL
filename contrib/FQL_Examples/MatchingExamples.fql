@@ -1,0 +1,178 @@
+/* Situation 1: 
+ *  We want to create a query between schema DogOwner and schema Dog
+ *  with attribute matching:
+ *  match {(dogatt,dname),(personatt,ownerName)}.
+ *  
+ *  This matching is REVERSABLE, meaning we should be able to move data either way.
+ *  The Dog ~> DogOwner query will involve making up owner IDs, but this is doable with SIGMA.
+ */
+ 
+schema DogOwner = {
+	nodes dog,person;
+	attributes ASWRITTEN;
+	arrows owner:dog->person;
+	equations;
+}
+
+schema Dog = {
+	nodes dog;
+	attributes dname:dog->string,ownerName:dog->string;
+	arrows;
+	equations;
+}
+
+/* Situation 2:
+ *  We want to create a query between schema UserData and schema PossibleCouple 
+ *  with attribute matching:
+ *  match {(mname,mname),(wname,wname),(bookname,bookname)}.
+ *  This should result in a join.
+ */
+
+schema UserData = {
+	nodes man,woman,book;
+	attributes mname:man->string,wname:woman->string,bookname:book->string;
+	arrows mfav:man->book,wfav:woman->book;
+	equations;
+ }
+
+schema PossibleCouple = {
+	nodes couple;
+	attributes mname:couple->string,wname:couple->string,bookname:couple->string;
+	arrows;
+	equations;
+}
+
+/* Situation 3:
+ *  We want to create a query between schema Employee and schema Person
+ *  with attribute matching:
+ *  match {(last,last),(first,first)}.
+ *  It should just be a project.
+ */
+
+schema Employee = {
+	nodes emp,dept;
+	attributes first:emp->string,last:emp->string,ssn:emp->string,name:dept->string;
+	arrows WorksIn:emp->dept;
+	equations;
+}
+
+schema Person = {
+	nodes person;
+	attributes first:person->string,last:person->string;
+	arrows;
+	equations;
+}
+
+/* Situtaion 4:
+ *  We want to create a REVERSABLE query between schema TwoColors and schema ReallyLikes
+ *  with attribute matching:
+ *  match {(FavColor,loves),(SecondFavColor,loves)}.
+ *  It should be a SELECT Col1=Col2 one way and a duplicate column (i.e. Delta) the other way.
+ *  
+ *  The idea is that for a OneColorLover,
+ *  the same color serves as both their favorite and their second favorite.
+ */
+
+schema TwoColors = {
+ 	nodes person;
+ 	attributes FavColor:person->string,SecondFavColor:person->string;
+ 	arrows;
+ 	equations;
+ }
+
+schema ReallyLikes = {
+ 	nodes OneColorLover;
+ 	attributes loves:OneColorLover->string;
+ 	arrows;
+ 	equations;
+ }
+
+/* Situation 5:
+ *  We want to create a query between schema MenAndWomen and schema PersonHome
+ *  with attribute matching:
+ *  match {(mfirst,first),(wfirst,first),(mlast,last),(wlast,last),(address,address)}
+ *  This should be a simple sigma.
+ */
+
+schema MenAndWomen = {
+	nodes man,woman,home;
+	attributes 
+		mfirst:man->string,
+		wfirst:man->string,
+		mlast:woman->string,
+		wlast:woman->string,
+		address:home->string;
+	arrows 
+		mLivesAt:man->home,
+		wLivesAt:woman->home;
+	equations;
+}
+
+schema PersonHome = {
+	nodes person,home;
+	attributes 
+		first:person->string,
+		last:person->string,
+		address:home->string;
+	arrows
+		LivesAt:person->home;
+	equations;
+}
+
+/* Situation 6:
+ *  We want to create a query between the schemas presented in Madhavan, Bernstein, Rahm 2001.
+ *  The matching is:
+ *  match{(
+ */
+
+schema MBR1 = {
+	nodes 
+		PO,
+		POShipTo,POBillTo,POLines,
+		Item
+		;
+	attributes
+		City1:POShipTo->string,
+		Street1:POShipTo->string,
+		City2:POBillTo->string,
+		Street2:POBillTo->string,
+		Count:POLines->int,
+		Line:Item->string,
+		Qty:Item->int,
+		UoM:Item->string
+		;
+	arrows
+		ship:PO->POShipTo,
+		bill:PO->POBillTo,
+		line:PO->POLines,
+		item:POLines->Item
+		;
+	equations;
+}
+
+schema MBR2 = {
+	nodes 
+		PurchaseOrder,
+		Items,DeliverTo,InvoiceTo,
+		Item,DeliverAddress,InvoiceAddress
+		;
+	attributes
+		City1:DeliverAddress->string,
+		Street1:DeliverAddress->string,
+		City2:InvoiceAddress->string,
+		Street2:InvoiceAddress->string,
+		ItemCount:Items->int,
+		ItemNumber:Item->string,
+		Quantity:Item->int,
+		UnitofMeasure:Item->string
+		;
+	arrows
+		deliver:PurchaseOrder->DeliverTo,
+		invoice:PurchaseOrder->InvoiceTo,
+		items:PurchaseOrder->Items,
+		item:Items->Item,
+		deliverAdd:DeliverTo->DeliverAddress,
+		invoiceAdd:InvoiceTo->InvoiceAddress
+		;
+	equations;
+}

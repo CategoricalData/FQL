@@ -1,0 +1,83 @@
+//The query from http://categoricaldata.net/fql/introSlides.pdf#page=45
+//This is a mix of using attributes and not. Later versions of FQL will be able to use constants in SELECT statements.
+
+category C = {
+	objects 
+		RL3, //numbers less than 3.
+		R,  //numbers
+		Book,
+		Isbn_num,
+		String;
+	arrows 
+		i:RL3->R,
+		price:Book->R,
+		title:Book->String,
+		isbn:Book->Isbn_num;	
+	equations;
+}
+
+functor I = {
+	objects 
+		RL3->{1,2},
+		R->{1,2,3,4,5},
+		Book->{1,2,3},
+		Isbn_num->{1,2,3,249,258,4597},
+		String->{"a","b","GoneWind","Catch22","CatTheory"};
+	arrows
+		att->{(1,1),(2,2),(3,3),(4,4),(5,5)},
+		title->{(1,"GoneWind"),(2,"Catch22"), (3,"CatTheory")},
+		isbn->{(1,258),(2,4597),(3,249)}, //Note the last digit of the ISBN is the number of letters in the title.
+		i->{(1,1),(2,2)},
+		price->{(1,4),(2,3),(3,1)};
+} :  C->Set
+
+//Note that there is exactly one book whose price is less than 3.
+
+category D = {
+	objects 
+		RL3,
+		R, 
+		W,
+		Book,
+		Isbn_num,
+		String;
+	arrows 
+		title:Book->String,
+		isbn:Book->Isbn_num,
+		f:W->RL3,
+		g:W->Book,
+		i:RL3->R,
+		price:Book->R;	
+	equations
+		W.f.i=W.g.price;
+}
+
+functor F = {
+	objects 
+		RL3->RL3, 
+		R->R, 
+		Book->Book,
+		Isbn_num->Isbn_num,
+		String->String;
+	arrows 
+		i->RL3.i, 
+		price->Book.price,
+		title->Book.title,
+		isbn->Book.isbn;
+} : C -> D
+
+
+functor pi_F_I = apply pi F on object I
+
+category E = {
+	objects W, String, Isbn_num;
+	arrows title:W->String, isbn:W->Isbn_num;
+	equations;
+}
+
+functor G = {
+	objects W->W, String->String, Isbn_num->Isbn_num;
+	arrows title->W.g.title, isbn->W.g.isbn;
+} : E -> D
+
+functor Select = apply delta G on object pi_F_I

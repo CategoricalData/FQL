@@ -1,0 +1,336 @@
+//Example via Peter Gates
+/* p12 ****************************************************/
+category A = {
+	objects 
+		Observation,
+		Person,
+		Gender,
+		ObsType;
+	arrows 
+		f:Observation->Person, 
+		g:Person->Gender,
+		h:Observation->ObsType;
+	equations;
+}
+
+category B = {
+	objects 
+		Observation,
+		Patient,
+		Method,
+		Type;
+	arrows 
+		f:Observation->Patient, 
+		g:Observation->Method, 
+		h:Method->Type;
+	equations;
+}
+
+/* p16 *****************************************************/
+category C = {
+	objects O,P,T;
+	arrows f:O->P, g:O->T;
+	equations;
+}
+
+functor J = {
+	objects O->Observation,P->Person, T->ObsType;
+	arrows f->Observation.f, g->Observation.h;
+} : C -> A
+
+functor K = {
+	objects O->Observation,P->Patient,T->Type;
+	arrows f->Observation.f, g->Observation.g.h;
+} :  C -> B
+
+/* p17 *************************************************/
+category PushoutSchema = { //This should be automatic
+	objects 
+		Gender,
+		Type,
+		Patient,
+		Method,
+		Observation;
+	arrows
+		f:Observation->Patient,
+		g:Observation->Method,
+		h:Method->Type,
+		i:Patient->Gender;
+	equations;
+}
+
+functor iA = {//This is the natural inclusion of A into colimit
+	objects 
+		Gender->Gender, 
+		Person->Patient,
+		Observation->Observation,
+		ObsType->Type;
+	arrows
+		f->Observation.f,
+		g->Patient.i,
+		h->Observation.g.h;
+} : A -> PushoutSchema
+
+functor iB = {//This is the natural inclusion of B into colimit
+	objects 
+		Patient->Patient,
+		Observation->Observation,
+		Method->Method,
+		Type->Type;
+	arrows
+		f->Observation.f,
+		g->Observation.g,
+		h->Method.h;
+} : B -> PushoutSchema
+
+//We can make a commutative square mapping to Cat to show that J;iA=K;iB.
+//C1 = 
+// O f-> P
+// |g    | x1
+// \/    \/
+// T ->x2 X
+category C1 = {
+	objects O,P,T,X;
+	arrows f:O->P, g:O->T, x1:P->X, x2:T->X;
+	equations O.g.x2 = O.f.x1;
+}
+
+functor check1 = {
+	objects P -> A, T -> B, O -> C, X -> PushoutSchema;
+	arrows f -> J, x1 -> iA, g -> K, x2 -> iB;
+} : C1 -> Cat 
+
+
+/* p19 *********************************************************/
+functor sig = {
+	objects
+		O->{},
+		P->{Peter},
+		T->{BloodPressure,BodyWeight};
+	arrows f->{},g->{};
+} : C -> Set
+
+functor InstA = {
+	objects 
+		Observation->{1,2,3},
+		Person->{Peter,Paul},
+		Gender->{M,F},
+		ObsType->{BloodPressure,BodyWeight,HeartRate};
+	arrows
+		f->{(1,Peter),(2,Peter),(3,Paul)},
+		g->{(Peter,M),(Paul,M)},
+		h->{(1,BloodPressure),(2,BodyWeight),(3,HeartRate)};
+} : A -> Set
+
+functor AC = (J ; InstA) //delta is composition
+
+/* p21 ***************************************************/
+functor InstB = {
+	objects
+		Observation->{1,2,3,4},
+		Patient->{Pete,Jane},
+		Method->{1,2,3,4},
+		Type->{BP,Wt};
+	arrows
+		f->{(1,Pete),(2,Pete),(3,Jane),(4,Jane)},
+		g->{(1,1),(2,2),(3,3),(4,1)},
+		h->{(1,BP),(2,BP),(3,Wt),(4,Wt)};
+} : B -> Set
+
+functor BC= (K ; InstB)
+
+/* p26 *******************************************/
+
+transform phi = {
+	objects
+		O->{},
+		P->{(Peter,Peter)},
+		T->{(BloodPressure,BloodPressure),(BodyWeight,BodyWeight)};
+} : (sig:C->Set) -> (AC:C->Set)
+
+transform del = {
+	objects
+		O->{},
+		P->{(Peter,Pete)},
+		T->{(BloodPressure,BP),(BodyWeight,Wt)};
+} : (sig:C->Set) -> (BC:C->Set)
+
+functor X = {
+	objects O -> sig, P -> BC, T -> AC;
+	arrows g -> phi, f -> del;
+} : C -> (Set^C)
+
+functor colimX = apply sigma snd C C on object uncurry X
+transform eta  = apply return sigma delta snd C C on uncurry X 
+
+// Now we have to tweak colimX and eta to build our commutative square
+category D = {
+ 	objects uniq;
+ 	arrows;
+ 	equations;
+}
+
+functor colimX2 = curry (snd D C; colimX)
+transform eta2 = CURRY eta
+
+//C1 =
+//
+// O f-> P
+// |g    | x1
+// \/    \/
+// T ->x2 X
+
+//since check2 is a functor that depends on transforms,
+//we have to explicitly name the transforms here
+transform ft = apply X on path O.f in C
+transform gt = apply X on path O.g in C
+transform x1t = APPLY eta2 on P
+transform x2t = APPLY eta2 on T
+
+functor check2 = {
+	objects 
+		O -> sig, 
+		P -> BC, 
+		T -> AC,
+		X -> apply colimX2 on object uniq;
+	arrows 
+		f -> ft, 
+		g -> gt, 
+		x1 -> x1t, 
+		x2 -> x2t;
+} : C1 -> (Set^C) 
+
+/* ************************************************************************************
+ *  In the rest of the presentation, we construct a colim and commutative diagram on 
+ * PushoutSchema->Set, rather than C->Set.
+ */
+transform t1a = apply sigma K on arrow del
+transform t1b = apply coreturn sigma delta K on InstB
+transform t1c = (t1a; t1b)  
+transform t1  = apply sigma iB on arrow t1c
+
+transform t2a = apply sigma J on arrow phi
+transform t2b = apply coreturn sigma delta J on InstA
+transform t2c = (t2a; t2b)  
+transform t2  = apply sigma iA on arrow t2c
+
+/////////////////////////////////////////////////////////////////////////////////////
+//now, we want to construct a commutative square, along t1 and t2, but 
+//the domains of t1 and t2 are isomorphic, not equal.  
+//we can use 'iso' to construct the isomorphism automatically.
+functor xxx1 = dom t1
+functor xxx2 = dom t2
+
+transform xxx= iso1 xxx1 xxx2
+transform yyy= iso2 xxx1 xxx2
+transform t2_hack = (xxx; t2)
+transform t1_hack = (yyy; t1)
+
+//now we repeat the colim construction but on PushoutSchema instead of C
+//C = 
+// O f-> P
+// |g    
+// \/    
+// T 
+functor Y = {
+	objects O -> dom t1, P -> cod t1, T -> cod t2;
+	arrows g -> t2_hack, f -> t1;
+} : C -> (Set^PushoutSchema) 
+
+functor colimY = apply sigma snd C PushoutSchema on object uncurry Y
+transform etta  = apply return sigma delta snd C PushoutSchema on uncurry Y
+functor colimY2 = curry (snd D PushoutSchema; colimY)
+transform etta2 = CURRY etta
+
+transform ft2 = apply Y on path O.f in C
+transform gt2 = apply Y on path O.g in C
+transform x1t2 = APPLY etta2 on P
+transform x2t2 = APPLY etta2 on T
+
+//C1 =
+//
+// O f-> P
+// |g    | x1
+// \/    \/
+// T ->x2 X
+functor check3 = {
+	objects 
+		O -> dom ft2, 
+		P -> cod ft2, 
+		T -> cod gt2,
+		X -> apply colimY2 on object uniq;
+	arrows 
+		f -> ft2, 
+		g -> gt2, 
+		x1 -> x1t2, 
+		x2 -> x2t2;
+} : C1 -> (Set^PushoutSchema) 
+
+//////////////////////////////////////////////////////////////////////////
+//or, rather than use 'iso', to connect dom(t1) and dom(t2), we can 
+//construct transforms t1j : Q -> dom(t1) and t2j : Q -> dom(t2) 
+
+transform t1d = apply return sigma delta K on sig
+functor t1x = delta K
+transform t1y = return sigma delta iB 
+functor dsiB = (sigma iB; delta iB)
+category bset = (Set^B)
+functor idBset = id bset
+transform t1e = right whisker t1x t1y
+transform t1e2 = apply t1e on apply sigma K on object sig
+transform t1f = (t1d ; t1e2) 
+transform t1g = apply sigma (K ; iB) on arrow t1f
+transform t1h = coreturn sigma delta (K ; iB) 
+transform t1i = apply t1h on apply sigma iB on object apply sigma K on object sig
+transform t1j = (t1g ; t1i) 
+
+functor Q = dom t1j
+
+transform t2d = apply return sigma delta J on sig
+functor t2x = delta J
+transform t2y = return sigma delta iA 
+functor dsiA = (sigma iA; delta iA)
+category aset = (Set^A)
+functor idAset = id aset
+transform t2e = right whisker t2x t2y
+transform t2e2 = apply t2e on apply sigma J on object sig
+transform t2f = (t2d ; t2e2) 
+transform t2g = apply sigma (J ; iA) on arrow t2f
+transform t2h = coreturn sigma delta (J ; iA) 
+transform t2i = apply t2h on apply sigma iA on object apply sigma J on object sig
+transform t2j = (t2g ; t2i) 
+
+transform t1_real = (t1j ; t1)
+transform t2_real = (t2j ; t2)
+
+//then we repeat the colim construction as before
+functor Z = {
+	objects O -> dom t1_real, P -> cod t1_real, T -> cod t2_real;
+	arrows g -> t2_real, f -> t1_real;
+} : C -> (Set^PushoutSchema) 
+
+functor colimZ = apply sigma snd C PushoutSchema on object uncurry Z
+transform ettta  = apply return sigma delta snd C PushoutSchema on uncurry Z
+functor colimZ2 = curry (snd D PushoutSchema; colimZ)
+transform ettta2 = CURRY ettta
+
+transform ft2_r = apply Z on path O.f in C
+transform gt2_r = apply Z on path O.g in C
+transform x1t2_r = APPLY ettta2 on P
+transform x2t2_r = APPLY ettta2 on T
+
+functor ANSWER = apply colimZ2 on object uniq
+
+//and this is our commutative square
+functor check4 = {
+	objects 
+		O -> dom ft2_r, 
+		P -> cod ft2_r, 
+		T -> cod gt2_r,
+		X -> ANSWER;
+	arrows 
+		f -> ft2_r, 
+		g -> gt2_r, 
+		x1 -> x1t2_r, 
+		x2 -> x2t2_r;
+} : C1 -> (Set^PushoutSchema)

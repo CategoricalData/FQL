@@ -1,0 +1,69 @@
+S = theory { 
+ sorts
+ 	Person, Nat;
+ symbols
+ 	parent@5 : Person -> Person,
+ 	age@3 : Person -> Nat,
+	zero@0 : Nat,
+	infinity@1 : Nat,
+	succ@2 : Nat -> Nat,
+	plus@4 : Nat,Nat -> Nat;
+ equations  
+   forall x. parent(x) = x,
+  	forall x. plus(zero,x) = x,
+  	forall x, y. plus(succ(x),y) = succ(plus(x,y));
+}
+
+I = presentation {
+	generators undef : Nat, 
+		      bill, george, sue, william, alice : Person;
+	equations bill = william, 
+	          age(alice)=succ(zero),
+	          age(bill) = succ(infinity),
+// keep commented for testing	age(george) = succ(infinity), 
+	          age(sue)=succ(undef);
+} : S
+C = schema {
+	entities Person;
+} : S
+
+Q = query {
+	 qP = {for pA:Person, pB:Person; 
+	 	  where age(pA) = age(pB); 
+	 	  return age=succ(age(pA)); 
+	 	  keys parent={pA=pA, pB=pB} : qP;} : Person //use pA=pB and pB=pA to fail equality check
+} : C -> C
+
+I0 = instance C I none
+
+J0 = apply Q I0
+
+T = types C
+
+M = javascript {
+	symbols zero -> "return 0",
+			succ -> "return input[0]+1",
+			plus -> "return input[0]+input[1]",
+		    infinity -> "return 0";
+} : T
+
+I1 = instance C I M
+
+J1 = apply Q I1
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+K = presentation {
+	generators undef2:Nat, billy, george, sue, alice : Person;
+	equations
+age(sue)=succ(succ(billy.age)),
+age(billy) = succ(infinity),
+age(alice)=succ(zero); 
+} : S
+K0 = instance C K none
+
+h = transpres {
+	sorts Nat -> {(undef,succ(billy.age))}, 
+		 Person -> {(bill,billy), (george,george.parent), (sue,sue), (william,billy), (alice,alice)};
+} : I0 -> K0  
+
+oplquh0 = apply Q h

@@ -1,0 +1,33 @@
+schema CM53 = {
+ nodes M;
+ attributes;
+ arrows arr : M -> M;
+ equations M.arr.arr.arr.arr.arr = M.arr.arr;
+}
+
+schema CM33 = {
+ nodes J;
+ attributes;
+ arrows a : J -> J;
+ equations J.a.a.a = J;
+}
+
+mapping F = {
+ nodes M -> J;
+ attributes;
+ arrows arr -> J.a;
+} : CM53 -> CM33
+
+instance A53 = {
+ nodes M -> { mm1,mm2,mmm,m };
+ attributes;
+ arrows arr -> { (mm1,mm2), (mm2,m), (mmm,m),(m,m) };
+} : CM53
+
+instance A33 = {
+ nodes J -> { m1, m2 , m3 };
+ attributes;
+ arrows a -> { (m1,m2), (m2,m3), (m3,m1) };
+} : CM33
+
+instance Inst2 = pi F A53

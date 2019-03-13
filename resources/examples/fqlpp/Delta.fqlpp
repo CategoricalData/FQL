@@ -1,0 +1,78 @@
+category C = {
+ objects 
+	T1, T2, string, int;
+ arrows
+	t1_ssn    : T1 -> string,
+	t1_first  : T1 -> string,
+	t1_last   : T1 -> string,
+	t2_first  : T2 -> string,
+	t2_last   : T2 -> string,
+	t2_salary : T2 -> int;
+ equations; 
+}
+
+category D = {
+ objects 
+	T, string, int;
+ arrows
+	ssn0    : T -> string,
+	first0  : T -> string,
+	last0   : T -> string,
+	salary0 : T -> int;
+ equations;
+}
+
+functor F = {
+ objects 
+	T1 -> T,
+	T2 -> T,
+	string -> string,
+	int -> int;
+ arrows
+	t1_ssn    -> T.ssn0,
+	t1_first  -> T.first0,
+	t2_first  -> T.first0,
+	t1_last   -> T.last0,
+	t2_last   -> T.last0,
+	t2_salary -> T.salary0;
+} : C -> D
+
+functor J = {
+ objects 
+	T -> { XF667, XF891, XF221 },
+	string -> { "115-234", "112-988", "198-887", Bob, Sue, Alice, Smith, Jones },
+	int -> { 250, 100, 300 };
+ arrows
+	ssn0    -> { (XF667, "115-234"),(XF891,"112-988"),(XF221,"198-887") },
+	first0  -> { (XF667,Bob),(XF891,Sue),(XF221,Alice) },
+	last0   -> { (XF667,Smith),(XF891,Smith),(XF221,Jones) },
+	salary0 -> { (XF667,250),(XF891,300),(XF221,100) };
+} : D -> Set
+
+functor df = delta F
+
+functor I = apply df on object J
+
+functor J0 = {
+ objects 
+	T -> { XF66,XF89,XF22, xxx },
+	string -> { "115-23", "112-98", "198-88", Bo, Su, Alic, Smit, Jone, xxx },
+	int -> { 25, 10, 30, 0 };
+ arrows
+	ssn0    -> { (XF66, "115-23"),(XF89,"112-98"),(XF22,"198-88"), (xxx,"xxx") },
+	first0  -> { (XF66,Bo),(XF89,Su),(XF22,Alic),(xxx, "xxx" )},
+	last0   -> { (XF66,Smit),(XF89,Smit),(XF22,Jone), (xxx, "xxx") },
+	salary0 -> { (XF66,25),(XF89,30),(XF22,10), (xxx, 0) };
+} : D -> Set
+
+transform trans = {
+ objects 
+ 	T -> {(XF667,XF66),(XF891,XF89),(XF221,XF22)},
+ 	string -> { ("115-234","115-23"), ("112-988","112-98"), ("198-887","198-88"), 
+ 	            (Bob,Bo), (Sue,Su), (Alice,Alic), (Smith,Smit), (Jones,Jone) },
+ 	int -> {(250,25),(100,10),(300,30)};
+} : (J: D -> Set) -> (J0: D -> Set)  
+
+functor I0 = apply df on object J0
+
+transform trans0 = apply df on arrow trans

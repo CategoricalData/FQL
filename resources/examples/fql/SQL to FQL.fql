@@ -1,0 +1,113 @@
+/* Ryan's query, written in David's best SQL (See Ryan's original request at bottom of file):
+ *  
+ *  SELECT A.c1, C.c5, C.c6 
+ *  FROM A,B,C
+ *  WHERE A.c1=B.c2 AND B.c3=C.c4 AND C.c5=C.c6
+ *  
+ *  
+ */
+
+
+
+schema First ={
+ nodes A, B, C, X, Y, Z;
+ attributes;
+ arrows
+ 	c1:A->X,
+ 	c2:B->X,
+ 	c3:B->Y,
+ 	c4:C->Y,
+ 	c5:C->Z,
+ 	c6:C->Z;
+ equations;
+}
+
+schema Intermediate = {
+ nodes ABC, X, Y, Z;
+ attributes;
+ arrows
+ 	c12:ABC->X,
+ 	c34:ABC->Y,
+ 	c56:ABC->Z;
+ equations;
+}
+
+schema Last = {
+ nodes ABC, X, Z;
+ attributes;
+ arrows
+ 	c12:ABC->X,
+ 	c561:ABC->Z,
+ 	c562:ABC->Z;
+ equations;
+}
+
+mapping F = { //To pi along for joins and selects 
+ nodes
+ 	A->ABC,
+ 	B->ABC, 
+ 	C->ABC,
+ 	X->X,
+ 	Y->Y,
+ 	Z->Z;
+ attributes;
+ arrows
+ 	c1->ABC.c12,
+ 	c2->ABC.c12,
+ 	c3->ABC.c34,
+ 	c4->ABC.c34,
+ 	c5->ABC.c56,
+ 	c6->ABC.c56;
+} : First -> Intermediate
+
+mapping G = { //To Delta along, for projects 
+ nodes 
+ 	ABC->ABC,
+ 	X->X,
+ 	Z->Z;
+attributes;
+arrows
+ 	c12->ABC.c12,
+	c561->ABC.c56,
+ 	c562->ABC.c56;
+} : Last -> Intermediate
+
+instance I = {
+ nodes
+ 	A -> {A1,A2},
+ 	B -> {B1,B2,B3},
+ 	C -> {C1,C2,C3},
+ 	X -> {X1,X2},
+ 	Y -> {Y1,Y2},
+ 	Z -> {Z1,Z2,Z3};
+ attributes;
+ arrows
+ 	c1 -> {(A1,X1),(A2,X2)},
+ 	c2 -> {(B1,X1),(B2,X1),(B3,X2)},
+ 	c3 -> {(B1,Y1),(B2,Y2),(B3,Y2)},
+ 	c4 -> {(C1,Y1),(C2,Y2),(C3,Y1)},
+ 	c5 -> {(C1,Z1),(C2,Z2),(C3,Z1)},
+ 	c6 -> {(C1,Z1),(C2,Z2),(C3,Z1)};
+ /* Alternate 1:  c6={(C1,Z1),(C2,Z1),(C3,Z2)}.
+    Alternate 2:  c6={(C1,Z2),(C2,Z2),(C3,Z1)}*/ 
+} : First
+
+instance Pi_FI = pi F I
+
+instance Delta_GPi_FI = delta G Pi_FI  // Result 
+
+
+
+
+/* Ryan's request: 
+ * Here's the example I'd like to translate to FQL
+ * Start with three input relations:
+ *
+ * A(c1)
+ * B(c2,c3)
+ * C(c4,c5,c6)
+ *
+ * Product A with B with C
+ * filter for A.c1 = B.c2 and B.c3 = C.c4 and C.c5 = C.c6
+ * project out A.c1 and C.c5 and C.c6
+ */

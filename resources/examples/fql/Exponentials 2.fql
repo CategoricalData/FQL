@@ -1,0 +1,75 @@
+schema D0 = {
+	nodes a0;
+	attributes;
+	arrows;
+	equations;
+}
+
+schema D1 = {
+	nodes a0, a1;
+	attributes;
+	arrows af : a0 -> a1;
+	equations;
+}
+
+schema D2 = {
+	nodes b0, b1, b2;
+	attributes;
+	arrows bf1 : b0 -> b1, bf2 : b1 -> b2;
+	equations;
+}
+
+schema D3 = {
+	nodes b0, b1, b2, b3;
+	attributes;
+	arrows bf1 : b0 -> b1, bf2 : b1 -> b2, bf3: b2->b3;
+	equations;
+}
+
+
+
+schema H0_0=(D0^D0)
+schema H0_1=(D0^D1)
+schema H0_2=(D0^D2)
+schema H0_3=(D0^D3)
+
+schema H1_0=(D1^D0)
+schema H1_1=(D1^D1)
+schema H1_2=(D1^D2)
+schema H1_3=(D1^D3)
+
+schema H2_0=(D2^D0)
+schema H2_1=(D2^D1)
+schema H2_2=(D2^D2)
+schema H2_3=(D2^D3)
+
+
+schema H3_0=(D3^D0)
+schema H3_1=(D3^D1)
+schema H3_2=(D3^D2)
+//schema H3_3=(D3^D3)
+
+
+schema Loop43 = {
+	nodes a;
+	attributes;
+	arrows f:a->a;
+	equations a.f.f.f.f=a.f.f.f;
+}
+
+schema Loop32 = {
+	nodes a;
+	attributes;
+	arrows f:a->a;
+	equations a.f.f.f=a.f.f;
+}
+
+schema term = {
+	nodes a;
+	attributes;
+	arrows;
+	equations;
+}
+
+schema Y=(Loop32^term)
+schema X=(Loop43^Loop32)

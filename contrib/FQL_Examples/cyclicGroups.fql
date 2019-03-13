@@ -1,0 +1,48 @@
+/* Dihedral group Dih(n): (according to http://en.wikipedia.org/wiki/Dihedral_group)
+ * D_n=< r,s | r^n=1, s^2=1, s^{-1}rs=r^{-1} >
+ */
+ 
+
+
+
+/* should have 4 elements */
+schema Z2 = {
+	r: G -> G;
+	G.r.r = G
+}
+/* should have 8 elements */
+schema Z4 = {
+	r: G -> G;
+	G.r.r.r.r = G
+}
+
+mapping F:Z2->Z4 = {
+	G->G;
+	r->G.r.r
+}
+
+instance I:Z2 = {
+ 	G={(0,0),(1,1),(-1,-1)},
+ 	r={(0,0),(1,-1),(-1,1)}
+}
+
+instance J:Z2 = {
+ 	G={(1,1),(-1,-1)},
+ 	r={(1,-1),(-1,1)}
+}
+
+instance K:Z2 = {
+ 	G={(0,0)},
+ 	r={(0,0)}
+}
+
+/*
+ *instance Pi_FI:Dihedral4 = pi F I
+ */
+
+/*
+ * instance Pi_FJ:Dihedral4 = pi F J
+ */
+instance Pi_FK:Z4 = pi F K
+
+

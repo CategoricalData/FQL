@@ -1,0 +1,18 @@
+schema StateMachineABC = {
+	nodes 
+		states;
+	attributes
+		output:states->string;
+	arrows
+		A:states->states,
+		B:states->states,
+		C:states->states;
+	equations
+		states.A.B=states.B.A,
+		states.A.C=states.C.A,
+		states.B.C=states.C.B,
+		states.A.A=states.A,
+		states.B.B=states.B,
+		states.C.C=states.C		
+		;
+}

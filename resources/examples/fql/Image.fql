@@ -1,0 +1,86 @@
+/*
+ * Let A and B be sets and F : A -> B a function.  
+ * 
+ * The pre-image of F is a function P(B) -> P(A) defined by
+ *   J -> { a | F(a) in J }
+ * 
+ * The direct-image of F is a function P(A) -> P(B) defined by
+ *   I -> { b | b = F(x), for some x in I }
+ * 
+ * The dual-image of F is a function P(A) -> P(B) defined by
+ *   I -> { b | b = F(x), for all x in I }
+ */
+ 
+/*
+ * We can encode a set {e1,e2,...,eN} as a schema with nodes e1,e2,...,eN.
+ * A function from set A to set B is encoded as a mapping from A to B.
+ * A subset of {e1,e2,...,eN} is encoded as an instance, where each node has either 0 or 1 elements.
+ *   
+ * Under this encoding, 
+ *    delta is pre-image, 
+ *    sigma is direct-image,   
+ *    pi is dual-image.
+ */
+
+// Example
+
+// {m1, m2, n}
+schema A = {
+	nodes m1, m2, n;
+	attributes;
+	arrows;
+	equations;
+}
+
+// {m, n, o}
+schema B = {
+	nodes m, n, o;
+	attributes;
+	arrows;
+	equations;
+}
+
+// m1 -> m, m2 -> m, n -> n
+mapping F = {
+	nodes m1 -> m, m2 -> m, n -> n;
+	attributes;
+	arrows;
+} : A -> B
+
+// {m1, n}
+instance I = {
+	nodes m1 -> { present }, m2 -> { }, n -> { present } ;
+	attributes;
+	arrows;
+} : A
+
+// {m, n}
+instance temp1 = sigma F I
+instance direct_imFI = relationalize temp1
+
+// {n, o}
+instance temp2 = pi F I
+instance dual_imFI = relationalize temp2
+
+// {m, o}
+instance J = {
+	nodes m -> { present }, n -> { }, o -> { present };
+	attributes;
+	arrows;
+} : B 
+
+// {m1, m2}
+instance temp3 = delta F J
+instance pre_imFJ = relationalize temp3
+
+/*
+Written in terms of adjunctions, we have
+
+image(I) subseteq J
+----------------------
+I subseteq preimage(J)
+
+preimage(J) subseteq I
+----------------------
+J subseteq dualimage(I)
+*/

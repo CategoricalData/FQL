@@ -1,0 +1,115 @@
+/*
+The FQL SQL compiler only supports sigma for mappings 
+that are discrete op-fibrations.  However, we have added 
+support for full Sigma directly to the FQL IDE.  
+*/
+
+schema C ={
+	nodes 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal;
+	attributes 
+		attA : Amphibian -> string, 
+		attL:LandAnimal-> string, 
+		attW:WaterAnimal->string;
+	arrows
+		IsAL:Amphibian->LandAnimal,
+		IsAW:Amphibian->WaterAnimal;
+	equations;
+	}
+
+instance I = {
+	nodes 
+		Amphibian->{1,2},
+		LandAnimal->{1,2,3,4,5},
+		WaterAnimal->{1,2,3,4};
+	attributes 
+		attA -> {(1,gecko),(2, frog)}, 
+		attL ->{(1,gecko),(2,frog),(3,human),(4,cow),(5,horse)},
+		attW -> {(1,fish),(2,gecko),(3,frog),(4,dolphin)};
+	arrows
+		IsAL->{(1,1),(2,2)},
+		IsAW->{(1,2),(2,3)};
+	} : C
+
+instance J = {
+	nodes 
+		Amphibian->{1,2,3},
+		LandAnimal->{1,2,3,4,5},
+		WaterAnimal->{1,2,3,4};
+	attributes 
+		attA -> {(1,gecko),(2, gecko),(3, gecko)},
+		attL ->{(1,gecko),(2,gecko),(3,human),(4,cow),(5,horse)},
+		attW -> {(1,gecko),(2,gecko),(3,gecko),(4,dolphin)};
+	arrows
+		IsAL->{(1,1),(2,2),(3,2)},
+		IsAW->{(1,1),(2,1),(3,2)};
+	} : C
+
+
+schema D ={
+	nodes 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal,
+		Animal;
+	attributes
+		attA : Amphibian -> string, 
+		attL:LandAnimal-> string, 
+		attW:WaterAnimal->string;
+	arrows
+		IsAL:Amphibian->LandAnimal,
+		IsAW:Amphibian->WaterAnimal,
+		IsALL:LandAnimal->Animal,
+		IsAWW:WaterAnimal->Animal;
+	equations
+		Amphibian.IsAL.IsALL=Amphibian.IsAW.IsAWW;
+	}
+
+mapping F = {
+	nodes 
+		Amphibian->Amphibian,
+		LandAnimal->LandAnimal,
+		WaterAnimal->WaterAnimal;
+	attributes
+		attA -> attA, 
+		attL -> attL, 
+		attW -> attW;
+	arrows
+		IsAL->Amphibian.IsAL,
+		IsAW->Amphibian.IsAW;
+	} : C -> D
+
+instance sigma_FI=SIGMA F I
+instance sigma_FJ=SIGMA F J
+
+instance deltasigmaI = delta F sigma_FI
+transform monad_unit = deltasigmaI.return
+instance sigmadeltasigmaI = SIGMA F deltasigmaI
+transform monad_counit = sigmadeltasigmaI.coreturn
+
+instance I0 = {
+	nodes 
+		Amphibian->{1},
+		LandAnimal->{1,2,3,4},
+		WaterAnimal->{1,2,3};
+	attributes 
+		attA -> {(1,gecko)}, 
+		attL ->{(1,gecko),(2,frog),(3,human),(4,cow)},
+		attW -> {(1,fish),(2,gecko),(3,frog)};
+	arrows
+		IsAL->{(1,1)},
+		IsAW->{(1,2)};
+	} : C
+
+transform t = {
+	nodes 
+		Amphibian->{(1,1)},
+		LandAnimal->{(1,1),(2,2),(3,3),(4,4)},
+		WaterAnimal->{(1,1),(2,2),(3,3)};	
+} : I0 -> I
+
+instance sigma_FI0 = SIGMA F I0
+	
+transform t0 = SIGMA sigma_FI0 sigma_FI t

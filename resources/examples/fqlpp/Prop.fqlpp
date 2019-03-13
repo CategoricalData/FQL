@@ -1,0 +1,83 @@
+//for better performance, disable validation
+
+category S = { 
+ objects
+ 	Employee, Department, dname, fname;
+ arrows
+ 	name  : Department -> dname,
+ 	first : Employee -> fname,
+	manager   : Employee -> Employee,
+	worksIn   : Employee -> Department,
+	secretary : Department -> Employee;
+ equations  
+  	Employee.manager.worksIn = Employee.worksIn,
+  	Department.secretary.worksIn = Department,
+  	Employee.manager.manager = Employee.manager;
+}
+
+functor J = {
+ objects
+	Employee -> { 101, 102, 103 },
+	Department -> { q10, x02 },
+	dname -> {AppliedMath, PureMath},
+	fname -> {Alan, Camille, Andrey};
+arrows
+	first -> { (101, Alan), (102, Camille), (103, Andrey) },
+	name  -> { (q10, AppliedMath), (x02, PureMath) },
+	manager -> { (101, 101), (102, 102), (103, 103) },
+	worksIn -> { (101, q10), (102, x02), (103, q10) },
+	secretary -> { (q10, 101), (x02, 102) };
+} : S -> Set
+
+functor I = {
+ objects
+	Employee -> { x101, x102 },
+	Department -> { xq10, xx02 },
+	dname -> {xAppliedMath, xPureMath},
+	fname -> {xAlan, xCamille, xAndrey};
+ arrows
+	first -> { (x101, xAlan), (x102, xCamille) },
+	name  -> { (xq10, xAppliedMath), (xx02, xPureMath) },
+	manager -> { (x101, x101), (x102, x102) },
+	worksIn -> { (x101, xq10), (x102, xx02) },
+	secretary -> { (xq10, x101), (xx02, x102) };
+} : S -> Set
+
+transform t = {
+ objects 
+	Employee -> { (x101,101), (x102,102) },
+	Department -> { (xq10,q10), (xx02,x02) },
+	dname -> {(xAppliedMath,AppliedMath), (xPureMath,PureMath)},
+	fname -> {(xAlan,Alan), (xCamille,Camille), (xAndrey,Andrey)};
+} : (I:S->Set) -> (J:S->Set)
+
+functor prp = prop S
+functor one = unit S Set
+
+transform tru = true S // true
+transform fals = false S // false
+
+transform char_t = char t
+
+//these two transforms are equal
+transform lhs = (t ; char_t)
+transform rhs = (tt I ; tru)
+
+transform char_t2 = kernel char_t
+functor ker = dom char_t2
+//I and ker are isomorphic
+transform iso = iso1 I ker //not the isomorphism people would pick
+transform should_equal_t = (iso ; char_t2) //= t (mod iso)
+
+// Intuitionistic Propositional logic ///////////////////////////////////////
+
+category X = {
+	objects n, e;
+	arrows att : n -> e;
+	equations;
+}
+
+transform NOT = not X
+transform AND = and X
+transform OR  = or  X
+transform IMP = implies X

@@ -1,0 +1,38 @@
+enum color = { red, green, blue }
+
+enum quark = { "top", "bottom", "up", "down", "charm", "strange" }
+
+schema S = {
+	nodes S_node;
+	attributes S_att : S_node -> color;
+	arrows;
+	equations;
+}
+
+schema T = {
+	nodes T_node;
+	attributes T_att : T_node -> quark;
+	arrows;
+	equations;
+}
+
+instance I = {
+	nodes S_node -> {0,1};
+	attributes S_att -> {(0,red),(1,blue)};
+	arrows;
+} : S
+
+/* bad 
+mapping F = {
+	nodes S_node -> T_node;
+	attributes S_att -> T_att;
+	arrows;
+} : S -> T
+*/
+
+//good
+mapping F = {
+	nodes S_node -> S_node;
+	attributes S_att -> S_att;
+	arrows;
+} : S -> S

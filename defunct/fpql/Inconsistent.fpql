@@ -1,0 +1,18 @@
+
+Int : type
+
+one : Int
+two : Int
+
+//eq1 : one = two
+
+X = schema { 
+      nodes;
+      edges;
+      equations;
+}
+
+I = instance { 
+      variables x : Int, y : Int;
+      equations x = one, y = two, x = y;
+} : X

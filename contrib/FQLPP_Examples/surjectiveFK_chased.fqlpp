@@ -1,0 +1,45 @@
+//chasing surjective foreign key
+
+category C = {
+	objects a,b,c;
+	arrows f:a->b,g:a->c;
+	equations;
+}
+
+functor I = {
+	objects a->{1,2,3},b->{4,5,6},c->{7,8,9};
+	arrows f->{(1,4),(2,4),(3,5)}, g->{(1,7),(2,8),(3,9)};
+} : C -> Set
+
+category D = {
+	objects a,b,bb,c;
+	arrows f:a->b, jj:b->bb, g:a->c;
+	equations;
+}
+
+functor F = {
+	objects a->a, b->b,bb->b,c->c;
+	arrows f->a.f, jj->b, g->a.g;
+} : D -> C
+
+functor d_F_I = apply delta F on object I
+
+category E = {
+	objects a,b,bb,a1,b1,c;
+	arrows f:a->b, jj:b1->bb, i:a->a1,j:b->b1,f1:a1->b1,g:a->c;
+	equations a.f.j=a.i.f1;
+}
+
+functor G = {
+	objects a->a, b->b, bb->bb, c->c;
+	arrows f->a.f, jj->b.j.jj, g->a.g;
+} : D -> E
+
+functor p_G_d_F_I=apply pi G on object d_F_I
+
+functor H = {
+	objects a->a, b->b,bb->b,a1->a,b1->b,c->c;
+	arrows f->a.f, jj->b,i->a,j->b,f1->a.f,g->a.g;
+} : E -> C
+
+functor chased=apply sigma H on object p_G_d_F_I

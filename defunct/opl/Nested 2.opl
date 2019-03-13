@@ -1,0 +1,48 @@
+Ax = theory {
+	sorts A1, A2;
+	symbols;
+	equations;
+}
+
+Bx = theory {
+	sorts B;
+	symbols b : B;
+	equations;
+}
+B = saturate Bx
+
+F = mapping {
+	sorts A1 -> B, A2 -> B;
+	symbols;
+} : Ax -> Bx 
+
+S0 = theory { 
+ sorts
+ 	M, T1, T2;
+ symbols
+ 	modelOf1@4 : M -> T1, 
+ 	modelOf2@3 : M -> T2,
+ 	Q@2 : T2 -> T1,
+ 	t2@1 : T2;
+ equations
+ 	forall m. modelOf1(m) = Q(modelOf2(m));
+}
+
+S = schema {
+	entities M;	
+} : S0
+
+T = types S
+
+I0 = presentation {
+	generators m : M;
+	equations modelOf2(m)=t2;
+} : S0
+
+M = javascript {
+	symbols
+		Q -> "return F.delta(input[0])",
+		t2 -> "return B";			
+} : T
+
+I = instance S I0 M

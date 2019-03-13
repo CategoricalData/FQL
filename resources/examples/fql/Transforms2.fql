@@ -1,0 +1,30 @@
+schema C = {
+	nodes A;
+	attributes att:A->string;
+	arrows f:A->A;
+	equations A.f.f.f=A.f.f;
+}
+
+instance I = {
+	nodes A->{1,2,3,4,5};
+	attributes att->{(1,common),(2,common),(3,common),(4,common),(5,common)};
+	arrows f->{(1,2),(2,3),(3,3),(4,2),(5,3)};
+} : C 
+
+instance J = {
+	nodes A->{1,2,3};
+	attributes att->{(1,common),(2,common),(3,common)};
+	arrows f->{(1,2),(2,3),(3,3)};
+} : C 
+
+//transform BadTransform = {
+//	nodes A->{(1,1),(2,2),(3,4)};
+//} :  J -> I
+
+transform GoodTransform1 = {
+	nodes A->{(1,1),(2,2),(3,3)};
+} :  J -> I
+
+transform GoodTransform2 = {
+	nodes A->{(1,1),(2,2),(3,3),(4,1),(5,2)};
+} :  I -> J

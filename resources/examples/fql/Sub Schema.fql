@@ -1,0 +1,17 @@
+schema ab = {
+	nodes a, b;
+	attributes atta : a -> string, attb : b -> string;
+	arrows f : a -> b;
+	equations;
+}
+
+schema c = {
+	nodes c;
+	attributes attc : c -> string;
+	arrows ;
+	equations;
+}
+
+schema abc = (ab union c)
+
+mapping F = subschema ab abc

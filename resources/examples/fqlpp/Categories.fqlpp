@@ -1,0 +1,174 @@
+//operations on finite categories
+
+category c1 = void
+category c2 = unit
+category c3 = (c2 + c2)
+category c4 = (c2 * c2)
+category c5 = (unit ^ void)
+
+functor f1 = id unit
+functor f2 = (f1 ; f1)
+functor f3 = ff unit
+functor f4 = iso1 c4 c5
+functor f5 = tt unit
+
+functor pair_eta = (fst c3 c3 * snd c3 c3) // = id
+functor sum_eta  = (inl c3 c3 + inr c3 c3) // = id
+functor exp_eta  = curry eval c3 c3 // = id
+
+category x = dom pair_eta
+category y = cod pair_eta
+
+category a = Set
+category b = Cat
+functor idSet = id Set
+functor idCat = id Cat
+functor idSet2 = (idSet ; idSet)
+
+transform t1 = id idSet
+transform t1x = (t1 ; t1) //on functors from Cat/Set, FQL can't check that cod/dom match, so be careful
+transform t2 = id idCat
+transform t3 = id exp_eta
+transform t3x = (t3 ; t3)
+
+/////////////////////////////////////////////
+//finitely presented categories
+
+category C = {
+ objects 
+	T1, 
+	T2,
+	string,
+	int;
+ arrows
+	t1_ssn    : T1 -> string,
+	t1_first  : T1 -> string,
+	t1_last   : T1 -> string,
+	t2_first  : T2 -> string,
+	t2_last   : T2 -> string,
+	t2_salary : T2 -> int;
+ equations; 
+}
+
+category D = {
+ objects 
+	T,
+	string,
+	int;
+ arrows
+	ssn    : T -> string,
+	first  : T -> string,
+	last   : T -> string,
+	salary : T -> int;
+ equations;
+}
+
+//operations like product work on finitely presented categories 
+category CD = (C * D)
+
+//finitely presented functors between finitely presented categories
+functor F = {
+ objects 
+	T1 -> T,
+	T2 -> T,
+	string -> string,
+	int -> int;
+ arrows
+	t1_ssn    -> T.ssn,
+	t1_first  -> T.first,
+	t2_first  -> T.first,
+	t1_last   -> T.last,
+	t2_last   -> T.last,
+	t2_salary -> T.salary;
+} : C -> D
+
+//functors from finitely presented categories to Set 
+//you can also use functions; see the Employees example
+set T = { XF667,XF891,XF221 } 
+set string = { "115-234", "112-988", "198-887", Bob, Sue, Alice, Smith, Jones }
+set int = { 250, 300, 100 } 
+
+functor J = {
+ objects 
+	T -> T,
+	string -> string, 
+	int -> int;
+ arrows
+	ssn    -> { (XF667, "115-234"),(XF891,"112-988"),(XF221,"198-887") }, // : T -> string is optional 
+	first  -> { (XF667,Bob),(XF891,Sue),(XF221,Alice) } : T -> string,
+	last   -> { (XF667,Smith),(XF891,Smith),(XF221,Jones) } : T -> string,
+	salary -> { (XF667,250),(XF891,300),(XF221,100) } : T -> int;
+} : D -> Set
+
+
+///////////////////////////////////////////////////////////////////
+//functors from finitely presented categories to Cat
+
+category X = {
+ objects 
+	c, d;
+ arrows
+	f : c -> d;
+ equations; 
+}
+
+functor Y = {
+ objects
+     c -> C,
+     d -> D;
+ arrows
+	f -> F;
+} : X -> Cat
+
+/////////////////////////////////////////////
+//Transforms between functors to Set
+
+functor X1 = {
+ objects
+  c -> {1,2},
+  d -> {3,4};
+ arrows
+  f -> {(1,3),(2,4)};
+} : X -> Set
+
+functor X2 = {
+ objects
+  c -> {a,b,c},
+  d -> {d,e,f};
+ arrows
+  f -> {(a,d),(b,e),(c,f)};
+} : X -> Set
+
+transform X1X2 = {
+ objects
+  c -> {(1,a),(2,b)},
+  d -> {(3,d),(4,e)};
+} : (X1 : X -> Set) -> (X2 : X -> Set)
+
+/////////////////////////////////////////////
+//Transforms between functors to Cat
+
+functor Z = {
+ objects
+     c -> C,
+     d -> C;
+ arrows
+	f -> id C;
+} : X -> Cat
+
+transform ZY = {
+ objects
+  c -> id C,
+  d -> F;
+} : (Z : X -> Cat) -> (Y : X -> Cat)
+
+///////////////////////////////////////////////////////////////////////
+//Transforms between functors between finitely presented categories
+
+transform FF = {
+ objects
+  T1 -> T,
+  T2 -> T,
+  string -> string,
+  int -> int;	
+} : (F : C -> D) -> (F : C -> D)

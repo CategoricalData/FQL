@@ -1,0 +1,112 @@
+schema ReflPath1 = {
+	nodes A1,A0;
+	attributes;
+	arrows src1:A1->A0, tgt1:A1->A0, refl0:A0->A1;
+	equations A0.refl0.src1=A0,A0.refl0.tgt1=A0;
+}
+
+instance G1 = {
+	nodes A0->{a,b,c,d,e}, A1->{a,b,c,d,e,f,g,h,i,j,k,l};
+	attributes ;
+	arrows 
+		src1->{(a,a),(b,b),(c,c),(d,d),(e,e),(f,a),(g,b),(h,a),(i,c),(j,b),(k,d),(l,e)},
+		tgt1->{(a,a),(b,b),(c,c),(d,d),(e,e),(f,b),(g,c),(h,b),(i,d),(j,d),(k,e),(l,e)},
+		refl0->{(a,a),(b,b),(c,c),(d,d),(e,e)};
+} : ReflPath1
+
+instance G2 = {
+	nodes A0->{a,b,c},A1->{a,b,c,f,g};
+	attributes;
+	arrows 
+	src1->{(a,a),(b,b),(c,c),(f,a),(g,b)},
+	tgt1->{(a,a),(b,b),(c,c),(f,b),(g,c)},
+	refl0->{(a,a),(b,b),(c,c)};
+} :  ReflPath1
+
+schema ReflPath2 = {
+	nodes A2,A1,A0;
+	attributes;
+	arrows 
+		src2:A2->A1, 
+		tgt2:A2->A1, 
+		src1:A1->A0, 
+		tgt1:A1->A0, 
+		refl0:A0->A1,
+		refl1:A1->A2;
+	equations 
+		A2.src2.tgt1=A2.tgt2.src1,
+		A0.refl0.src1=A0, A0.refl0.tgt1=A0,
+		A1.refl1.src2=A1, A1.refl1.tgt2=A1;
+}
+
+mapping ReflUpTo2 = {
+	nodes A0->A0,A1->A1;
+	attributes;
+	arrows 
+		src1->A1.src1,
+		tgt1->A1.tgt1,
+		refl0->A0.refl0;
+} : ReflPath1 -> ReflPath2
+
+mapping ReflGrabPaths = {
+	nodes A0->A0, A1->A2;
+	attributes;
+	arrows src1->A2.src2.src1, tgt1->A2.tgt2.tgt1, refl0->A0.refl0.refl1;
+} : ReflPath1 -> ReflPath2
+
+instance J1=pi ReflUpTo2 G1
+instance J2=pi ReflUpTo2 G2
+
+instance K1=delta ReflGrabPaths J1
+instance K2=delta ReflGrabPaths J2
+
+schema Path1 = {  //This is the graph-indexing schema
+	nodes A1,A0;
+	attributes;
+	arrows src1:A1->A0, tgt1:A1->A0;
+	equations;
+}
+
+instance H1 = {
+	nodes A0->{a,b,c,d,e}, A1->{f,g,h,i,j,k,l};
+	attributes ;
+	arrows 
+		src1->{(f,a),(g,b),(h,a),(i,c),(j,b),(k,d),(l,e)},
+		tgt1->{(f,b),(g,c),(h,b),(i,d),(j,d),(k,e),(l,e)};
+} : Path1
+
+schema Path2 = {
+	nodes A2,A1,A0;
+	attributes;
+	arrows src2:A2->A1, tgt2:A2->A1, src1:A1->A0, tgt1:A1->A0;
+	equations A2.src2.tgt1=A2.tgt2.src1;
+}
+
+mapping UpTo2 = {
+	nodes A0->A0,A1->A1;
+	attributes;
+	arrows 
+		src1->A1.src1,
+		tgt1->A1.tgt1;
+} : Path1 -> Path2
+
+mapping GrabPaths = {
+	nodes A0->A0, A1->A2;
+	attributes;
+	arrows src1->A2.src2.src1, tgt1->A2.tgt2.tgt1;
+} : Path1 -> Path2
+
+
+instance L1=pi UpTo2 H1
+instance M1=delta GrabPaths L1
+
+mapping Reflizer = {
+	nodes A0->A0,A1->A1;
+	attributes;
+	arrows src1->A1.src1, tgt1->A1.tgt1;
+} : Path1 -> ReflPath1
+
+instance G3=SIGMA Reflizer H1
+instance H2=delta Reflizer G3
+instance L2=pi UpTo2 H2
+instance M2=delta GrabPaths L2

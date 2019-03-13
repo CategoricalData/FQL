@@ -1,0 +1,47 @@
+//our schema S has one node, so an instance on S will just be a set.
+schema S = {
+	nodes n;
+	attributes;
+	arrows;
+	equations;
+}
+
+//the set {true, false}.  
+//For sets, any 2-element set is a sub-object classifier.
+instance P = prop S // has n -> {true, false} . 
+
+//the set { tt }.
+//For sets, any 1-element set is a terminal instance
+instance terminal = unit S // has n -> { tt } .  
+
+//truth values are transforms terminal -> P
+transform tru = P.true terminal // maps tt -> true   
+transform fals = P.false terminal // maps tt -> false
+
+//the set {1,2,3,4}
+instance J = {
+	nodes n -> {1,2,3,4};
+	attributes;
+	arrows;
+} : S
+
+//the set {a,b,c}
+instance I = {
+	nodes n -> {a,b,c};
+	attributes;
+	arrows;
+} : S
+
+//the injective function a -> 1, b -> 2, c -> 3
+transform f = {
+	nodes n -> {(a,1),(b,2),(c,3)};
+} : I -> J
+
+//the characteristic function J -> prop
+//maps 1 -> true, 2 -> true, 3 -> true, 4 -> false
+transform char_f = P.char f 
+
+//these two transforms I -> prop are equal
+//they map a -> true, b -> true, c -> true
+transform rhs = (terminal.unit I then tru) 
+transform lhs = (f then char_f)

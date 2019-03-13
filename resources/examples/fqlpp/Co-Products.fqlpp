@@ -1,0 +1,111 @@
+/* Functors S to Set ****************************/
+
+category S = {
+	objects a, b;
+	arrows f : a -> b;
+	equations;
+}
+
+functor I = {
+	objects a -> {1,2}, b -> {3};
+	arrows f -> {(1,3),(2,3)};
+} : S -> Set
+
+functor J = {
+	objects a -> {a,b,c}, b -> {d,e};
+	arrows f -> {(a,d),(b,e),(c,e)};
+} : S -> Set
+
+functor A = (I + J)
+
+transform K = inl I J
+
+transform L = inr I J
+
+transform M = (K + L) //is id
+
+functor N = void S Set
+
+transform O = ff J
+
+/* Functors S to Cat ****************************/
+
+functor N2 = void S Cat
+
+transform O2 = ff N2
+
+category C = {
+ objects 
+	T1, 
+	T2,
+	string,
+	int;
+ arrows
+	t1_ssn    : T1 -> string,
+	t1_first  : T1 -> string,
+	t1_last   : T1 -> string,
+	t2_first  : T2 -> string,
+	t2_last   : T2 -> string,
+	t2_salary : T2 -> int;
+ equations; 
+}
+
+category D = {
+ objects 
+	T,
+	string,
+	int;
+ arrows
+	ssn    : T -> string,
+	first  : T -> string,
+	last   : T -> string,
+	salary : T -> int;
+ equations;
+}
+
+functor F = {
+ objects 
+	T1 -> T,
+	T2 -> T,
+	string -> string,
+	int -> int;
+ arrows
+	t1_ssn    -> T.ssn,
+	t1_first  -> T.first,
+	t2_first  -> T.first,
+	t1_last   -> T.last,
+	t2_last   -> T.last,
+	t2_salary -> T.salary;
+} : C -> D
+
+category X = {
+ objects 
+	c, d;
+ arrows
+	f : c -> d;
+ equations; 
+}
+
+functor Y = {
+ objects
+     c -> C,
+     d -> D;
+ arrows
+	f -> F;
+} : X -> Cat
+
+functor Z = {
+ objects
+     c -> C,
+     d -> C;
+ arrows
+	f -> id C;
+} : X -> Cat
+
+functor YZ = (Y + Z)
+
+transform YZ_1 = inl Y Z
+
+transform YZ_2 = inr Y Z
+
+transform YZ_id = (YZ_1 + YZ_2)

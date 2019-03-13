@@ -1,0 +1,45 @@
+Ax = theory {
+	sorts A1, A2;
+	symbols a : A1 -> A2, a1 : A1, a2 : A2;
+	equations;
+}
+A = saturate Ax
+
+Bx = theory {
+	sorts B;
+	symbols b : B -> B, b1 : B;
+	equations forall x. b(x) = x;
+}
+B = saturate Bx
+
+S0 = theory { 
+ sorts
+ 	M, Model, Int;
+ symbols
+ 	modelOf : M -> Model, 
+ 	size1 : M -> Int,
+ 	size2 : Model -> Int,
+ 	m1, m2 : Model;
+ equations
+ 	forall m. size1(m) = size2(modelOf(m));
+}
+
+S = schema {
+	entities M;	
+} : S0
+
+T = types S
+
+I0 = presentation {
+	generators mA, mB : M;
+	equations modelOf(mA)=m1, modelOf(mB)=m2;
+} : S0
+
+M = javascript {
+	symbols
+		size2 -> "return input[0].size()",
+		m1 -> "return A",
+		m2 -> "return B";			
+} : T
+
+I = instance S I0 M

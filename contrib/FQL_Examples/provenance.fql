@@ -1,0 +1,7 @@
+schema W1 = {
+	nodes 
+		P, a1, a2, a3;
+	attributes prov:P->string, att1:a1->string,att2:a2->string,att3:a3->string;
+	arrows p1:P->a1,p2:P->a2,p3:P->a3;
+	equations;
+}

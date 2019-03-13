@@ -1,0 +1,47 @@
+dom : type
+string : type
+61 Mary: dom
+mother person woman age name : string
+
+G = schema {
+	nodes Arrow, Node, NodeProperty;
+	edges 
+		labA: Arrow->string, 
+		labN: Node ->string,
+		Pname: NodeProperty -> string,
+		val:  NodeProperty-> dom,
+		src:  Arrow->Node,
+		tgt:  Arrow->Node,
+		isOn:   NodeProperty->Node
+		;
+	equations;
+}
+
+//I changed this a little bit, so that mother: person -> woman, rather than mother:person->person
+
+I = instance {
+	variables e : Arrow , n m w: Node, a b c d: NodeProperty;
+	equations 
+		e.src=n, e.tgt=w, e.labA=mother, 
+		n.labN=person, m.labN=person, w.labN=woman,
+		a.isOn=n, a.Pname=age, a.val=61,
+		b.isOn=w, b.Pname=name,
+		c.isOn=n, c.Pname=name, c.val=b.val,
+		d.isOn=m, d.Pname=name, d.val=Mary;
+}
+ : G
+
+FQL_Schema_for_I = schema {
+	nodes nmperson, wwoman;
+	edges 
+		emother: nmperson->wwoman, 
+		aage: nmperson->dom, bname:wwoman->dom, cname:nmperson->dom
+		;
+	equations;
+}
+
+FQL_Instance_for_I = instance {
+	variables n m : nmperson, w: wwoman;
+	equations n.emother = w, n.aage=61, w.bname=n.cname, m.cname=Mary;
+}
+ : FQL_Schema_for_I

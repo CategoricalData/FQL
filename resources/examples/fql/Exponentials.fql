@@ -1,0 +1,64 @@
+schema A = {
+	nodes a1, a2;
+	attributes;
+	arrows af : a1 -> a2;
+	equations;
+}
+
+schema B = {
+	nodes b1, b2, b3;
+	attributes;
+	arrows bf1 : b1 -> b2, bf2 : b2 -> b3;
+	equations;
+}
+
+schema S = (A^B)
+
+mapping eta = curry eval A B // (= id)
+
+mapping F = unit {} (A*B) //can use any F for beta, we choose this one
+
+mapping beta = (  ((fst A B then curry F) * (snd A B then id B)) then eval unit {} B  ) // (= F)
+
+// exponentials of instances below /////////////////////////////////////
+
+enum dom = {foo, bar, baz}
+
+schema C = {
+         nodes a, b;
+         attributes att : a -> dom;
+         arrows f : a -> b;
+         equations;
+}
+
+instance I = {
+         nodes a -> {1,2,3}, b -> {4,5};
+         attributes att -> {(1,foo),(2,bar),(3,baz)};
+         arrows f -> {(1,4),(2,5),(3,5)};
+} : C
+
+instance J = {
+         nodes a -> {1,2}, b -> {4};
+         attributes att -> {(1,foo),(2,baz)};
+         arrows f -> {(1,4),(2,4)};
+} : C
+
+instance K = (J^I)
+
+instance M = (K*I) 
+
+transform trans = M.eval
+
+transform idx = K.curry trans //eta
+ 
+// beta below here
+instance one = unit C
+instance ab = (I * J)
+instance oneB = (one ^ J)
+instance oneBB = (oneB * J)
+
+transform G = one.unit ab 
+
+transform curryF = oneB.curry G
+
+transform tr = (oneBB.( (ab.fst then curryF) * ab.snd) then oneBB.eval) //beta (= G)

@@ -1,0 +1,178 @@
+schema C = {
+ nodes 
+	a1, a2, a3, b1, b2, c1, c2, c3, c4;
+
+ attributes
+	a1_str : a1 -> string,
+ 	a2_str : a2 -> string,
+ 	a3_str : a3 -> string,
+	
+	b1_str : b1 -> string,
+ 	b2_str : b2 -> string,
+
+ 	c1_str : c1 -> string,
+ 	c2_str : c2 -> string,
+ 	c3_str : c3 -> string,
+ 	c4_str : c4 -> string;
+ 	
+ arrows
+	g1 : a1 -> b1, 
+	g2 : a2 -> b2, 
+	g3 : a3 -> b2,
+	h1 : a1 -> c1, 
+	h2 : a2 -> c2, 
+	h3 : a3 -> c4;
+
+ equations;
+}
+
+schema D = {
+ nodes 
+ 	A, B, C;
+ attributes
+	A_str : A -> string,
+ 	B_str : B -> string,
+ 	C_str : C -> string;
+ arrows
+ 	G : A -> B, 
+ 	H : A -> C;
+ equations;
+}
+
+mapping F = {
+ nodes 
+  	a1 -> A, 
+  	a2 -> A, 
+  	a3 -> A,
+  	b1 -> B,
+  	b2 -> B,
+  	c1 -> C, 
+  	c2 -> C, 
+  	c3 -> C, 
+  	c4 -> C;
+ attributes
+  	a1_str -> A_str, 
+  	a2_str -> A_str, 
+  	a3_str -> A_str,
+  	b1_str -> B_str, 
+  	b2_str -> B_str,
+  	c1_str -> C_str, 
+  	c2_str -> C_str,
+  	c3_str -> C_str, 
+  	c4_str -> C_str;
+ arrows  
+  	g1 -> A.G, 
+ 	g2 -> A.G, 
+  	g3 -> A.G,
+  	h1 -> A.H, 
+  	h2 -> A.H, 
+  	h3 -> A.H;
+} : C -> D
+
+
+instance I = {
+ nodes
+ 	b2 -> {a,b,c},
+ 	b1 -> {d,e},
+
+ 	a3 -> {1,2},
+ 	a2 -> {3,4,5},
+	a1 -> {6},
+ 
+ 	c4 -> {f,g},
+ 	c3 -> {h},
+ 	c2 -> {i,j},
+ 	c1 -> {k,l};
+
+ attributes
+	b2_str -> {(a,a),(b,b),(c,c)},
+ 	b1_str -> {(d,d),(e,e)}, 
+
+ 	a1_str -> {(6, 6)},
+ 	a2_str -> {(3,3),(4,4),(5,5)},
+ 	a3_str -> {(1,1),(2,2)},
+
+ 	c4_str -> {(f,f),(g,g)},
+ 	c3_str -> {(h,h)},
+ 	c2_str -> {(i,i),(j,j)},
+ 	c1_str -> {(k,k),(l,l)};
+ 	
+ arrows
+ 	g3 -> {(1,a),(2,b)},
+ 	g2 -> {(3,a),(4,b),(5,c)},
+ 	g1 -> {(6,d)},
+
+ 	h3 -> {(1,f),(2,g)},
+ 	h2 -> {(3,i),(4,j),(5,j)},
+ 	h1 -> {(6,k)}; 
+} : C
+
+instance J = sigma F I
+
+instance JX = delta F J
+
+transform monad_unit = JX.return
+
+instance IX = sigma F JX
+
+transform monad_counit = IX.coreturn
+
+instance IY = delta F IX
+
+transform monad_join = delta IY JX monad_counit
+
+instance I0 = {
+ nodes
+ 	b2 -> {a,b},
+ 	b1 -> {d},
+
+ 	a3 -> {1},
+ 	a2 -> {3,4},
+	a1 -> {},
+ 
+ 	c4 -> {f},
+ 	c3 -> {},
+ 	c2 -> {i,j},
+ 	c1 -> {k};
+
+ attributes
+	b2_str -> {(a,a),(b,b)},
+ 	b1_str -> {(d,d)}, 
+
+ 	a1_str -> {},
+ 	a2_str -> {(3,3),(4,4)},
+ 	a3_str -> {(1,1)},
+
+ 	c4_str -> {(f,f)},
+ 	c3_str -> {},
+ 	c2_str -> {(i,i),(j,j)},
+ 	c1_str -> {(k,k)};
+ 	
+ arrows
+ 	g3 -> {(1,a)},
+ 	g2 -> {(3,a),(4,b)},
+ 	g1 -> {},
+
+ 	h3 -> {(1,f)},
+ 	h2 -> {(3,i),(4,j)},
+ 	h1 -> {}; 
+} : C
+
+transform t = {
+ nodes
+ 	b2 -> {(a,a),(b,b)},
+ 	b1 -> {(d,d)},
+
+ 	a3 -> {(1,1)},
+ 	a2 -> {(3,3),(4,4)},
+	a1 -> {},
+ 
+ 	c4 -> {(f,f)},
+ 	c3 -> {},
+ 	c2 -> {(i,i),(j,j)},
+ 	c1 -> {(k,k)};
+} : I0 -> I
+
+instance J0 = sigma F I0
+
+transform t0 = sigma J0 J t

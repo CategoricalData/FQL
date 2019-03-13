@@ -1,0 +1,41 @@
+category S = { 
+ objects
+ 	Employee, Department;
+ arrows
+	manager   : Employee -> Employee,
+	worksIn   : Employee -> Department,
+	secretary : Department -> Employee;
+ equations  
+  	Employee.manager.worksIn = Employee.worksIn,
+  	Department.secretary.worksIn = Department,
+  	Employee.manager.manager = Employee.manager; 
+}
+
+functor I = {
+ objects
+	Employee -> { 101, 102, 103 },
+	Department -> { q10, x02 };
+ arrows
+	manager -> { (101, 103), (102, 102), (103, 103) } : {101,102,103} -> {101,102,103},
+	worksIn -> { (101, q10), (102, x02), (103, q10) } : {101,102,103} -> {q10,x02},
+	secretary -> { (q10, 101), (x02, 102) } : {q10,x02} -> {101,102} ;
+} : S -> Set
+
+set emps = { 101, 102, 103 }
+set depts = { q10, x02 }
+function foo = { (101,(101,q10)),(102,(102,x02)),(103,(103,q10)) } : emps -> (emps * depts)
+
+functor J = {
+ objects
+	Employee -> emps,
+	Department -> depts;
+ arrows
+	manager -> id emps,
+	worksIn -> (foo ; snd emps depts),
+	secretary -> { (q10, 101), (x02, 102) } : depts -> emps ;
+} : S -> Set
+
+functor K = pivot J
+category grothJ = dom K
+functor L = unpivot K
+transform JK = iso1 J L

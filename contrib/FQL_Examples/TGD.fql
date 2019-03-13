@@ -1,0 +1,57 @@
+//I want the TGD forall x,y R(x,y) => exists z S(y,z).
+
+schema X = {
+	nodes r,s,x,y,z;
+	attributes;
+	arrows rx:r->x,ry:r->y, sy:s->y, sz:s->z;
+	equations;
+}
+
+instance I = {
+	nodes r->{1,2}, s->{1,2}, x->{x1,x2},y->{y1,y2,y3},z->{z1,z3};
+	attributes;
+	arrows 
+		rx->{(1,x1),(2,x2)},
+		ry->{(1,y1),(2,y2)},
+		sy->{(1,y1),(2,y3)},
+		sz->{(1,z1),(2,z3)}
+		;
+} :  X
+
+schema X1 = {
+	nodes rs,r,s,x,y,z;
+	attributes;
+	arrows rsr:rs->r,rss:rs->s,rx:r->x,ry:r->y, sy:s->y, sz:s->z;
+	equations rs.rsr.ry=rs.rss.sy;
+}
+
+mapping F1 = {
+	nodes r->r, s->s,x->x,y->y,z->z;
+	attributes;
+	arrows rx->r.rx, ry->r.ry, sy->s.sy, sz->s.sz;
+} : X -> X1
+
+instance I1 = pi F1 I
+
+schema X2 = {
+	nodes r,s,x,y,z;
+	attributes;
+	arrows rs:r->s, rx:r->x,ry:r->y, sy:s->y, sz:s->z;
+	equations r.rs.sy=r.ry;
+}
+
+mapping F2 = {
+	nodes rs->r,r->r,s->s,x->x,y->y,z->z;
+	attributes;
+	arrows rsr->r, rss->r.rs,rx->r.rx,ry->r.ry,sy->s.sy,sz->s.sz;
+} : X1 -> X2
+
+instance I2 = SIGMA F2 I1
+
+mapping G = {
+	nodes r->r,s->s,x->x,y->y,z->z;
+	attributes;
+	arrows rx->r.rx, ry->r.ry, sy->s.sy, sz->s.sz;
+} : X -> X2
+
+instance J = delta G I2

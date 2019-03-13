@@ -1,0 +1,47 @@
+schema Arrow = {
+	nodes A,B;
+	attributes;// Aatt:A->string,Batt:B->string;
+	arrows f:A->B;
+	equations;
+}
+
+schema D2 = {
+	nodes A,B;
+	attributes;// Aatt:A->string,Batt:B->string;
+	arrows;
+	equations;
+}
+
+schema D1 = {
+	nodes X;
+	attributes;// Xatt:X->string;
+	arrows;
+	equations;
+}
+
+schema Loop = {
+	nodes X;
+	attributes;// Xatt:X->string;
+	arrows f:X->X;
+	equations X.f.f.f.f=X.f.f.f.f.f;
+}
+
+mapping D2Arrow = {
+	nodes A->A,B->B;
+	attributes;// Aatt->Aatt,Batt->Batt;
+	arrows;
+} : D2 -> Arrow
+
+mapping ArrowLoop = {
+	nodes A->X,B->X;
+	attributes ;
+	arrows f->X.f;
+} : Arrow -> Loop
+
+instance P = {
+	nodes A->{1,2,3,4},B->{1,2,3,4};
+	attributes;
+	arrows f->{(1,2),(2,4),(3,2),(4,4)};
+} : Arrow
+
+instance P2 = pi ArrowLoop P

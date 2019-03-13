@@ -1,0 +1,76 @@
+category C = {
+ objects 
+ 	c1, 
+ 	c2,
+ 	string;
+ arrows
+	att1 : c1 -> string,
+	att2 : c1 -> string, 
+	att3 : c2 -> string;
+ equations;
+}
+
+functor I = {
+ objects
+	c1   -> { 1,2 },
+	c2   -> { 1,2,3 },
+	string->{ Ryan, Wisnesky, David, Spivak, Harvard, MIT, Leslie };
+ arrows
+	att1 -> { (1,David), (2,Ryan) },
+	att2 -> { (1,Spivak), (2,Wisnesky) },
+	att3 -> { (1,MIT), (2,Harvard),(3,Leslie) };
+} : C -> Set
+
+functor I0 = {
+ objects
+	c1   -> { x1 },
+	c2   -> { x1,x2 },
+	string->{ Davidx, Spivakx, MITx, Harvardx };
+ arrows
+	att1 -> { (x1,Davidx) },
+	att2 -> { (x1,Spivakx) },
+	att3 -> { (x1,MITx), (x2,Harvardx) };
+} : C -> Set
+
+transform t = {
+	objects c1 -> {(x1,1)}, c2 -> {(x1,1),(x2,2)}, 
+	        string -> {(Davidx,David),(Spivakx, Spivak),(MITx,MIT),(Harvardx,Harvard)} ;
+} : (I0:C->Set) -> (I:C->Set) 
+
+category D = {
+ objects 
+ 	d,
+ 	string;
+ arrows
+ 	a1 : d -> string, 
+ 	a2 : d -> string, 
+ 	a3 : d -> string;
+ equations;
+}
+
+functor F = {
+ objects 
+ 	c1 -> d,
+ 	c2 -> d,
+ 	string -> string;
+ arrows
+	att1 -> d.a1, 
+	att2 -> d.a2,
+	att3 -> d.a3;
+} : C -> D
+
+functor J = apply pi F on object I
+transform tx = apply pi F on arrow t
+
+functor XXX = {
+ objects 
+ 	d -> {a,b,c},
+ 	string -> {foo,bar,baz};
+ arrows
+ 	a1 -> {(a,foo),(b,foo),(c,foo)}, 
+ 	a2  ->{(a,bar),(b,bar),(c,bar)},
+ 	a3 ->{(a,baz),(b,baz),(c,baz)};
+ } : D -> Set
+
+transform coret = apply coreturn delta pi F on I
+transform ret = apply return delta pi F on XXX

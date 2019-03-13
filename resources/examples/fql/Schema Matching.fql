@@ -1,0 +1,59 @@
+schema C ={
+	nodes 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal;
+	attributes 
+		attA : Amphibian -> string, 
+		attL:LandAnimal-> string, 
+		attW:WaterAnimal->string;
+	arrows
+		IsAL:Amphibian->LandAnimal,
+		IsAW:Amphibian->WaterAnimal;
+	equations;
+	}
+
+schema D ={
+	nodes 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal,
+		Animal;
+	attributes
+		attA : Amphibian -> string, 
+		attL:LandAnimal-> string, 
+		attW:WaterAnimal->string;
+	arrows
+		IsAL:Amphibian->LandAnimal,
+		IsAW:Amphibian->WaterAnimal,
+		IsALL:LandAnimal->Animal,
+		IsAWW:WaterAnimal->Animal;
+	equations
+		Amphibian.IsAL.IsALL=Amphibian.IsAW.IsAWW;
+	}
+
+instance I = {
+	nodes 
+		Amphibian->{1,2},
+		LandAnimal->{1,2,3,4,5},
+		WaterAnimal->{1,2,3,4};
+	attributes 
+		attA -> {(1,gecko),(2, frog)}, 
+		attL ->{(1,gecko),(2,frog),(3,human),(4,cow),(5,horse)},
+		attW -> {(1,fish),(2,gecko),(3,frog),(4,dolphin)};
+	arrows
+		IsAL->{(1,1),(2,2)},
+		IsAW->{(1,2),(2,3)};
+	} : C
+
+
+
+QUERY q1 = match {(attA, attA),(attL, attL), (attW, attW)} C D "delta sigma forward"
+QUERY q2 = match {(attA, attA),(attL, attL), (attW, attW)} C D "delta pi forward"
+QUERY q3 = match {(attA, attA),(attL, attL), (attW, attW)} C D "delta sigma backward"
+QUERY q4 = match {(attA, attA),(attL, attL), (attW, attW)} C D "delta pi backward"
+
+//instance out1 = EVAL q1 I // - I has wrong type
+//instance out2 = EVAL q2 I // - I has wrong type
+instance out3 = EVAL q3 I // SIGMA fails if it can't create nulls
+instance out4 = EVAL q4 I // has 40 rows

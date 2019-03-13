@@ -1,0 +1,27 @@
+schema C = {
+	nodes a, b;
+	attributes att1 : a -> string, att2 : b -> string;
+	arrows;
+	equations;
+}
+
+schema D = {
+	nodes c;
+	attributes att : c -> string;
+	arrows;
+	equations;
+}
+
+instance I = {
+	nodes a -> {1,2,3}, b -> {1,2};
+	attributes att1 -> {(1,alpha), (2,beta), (3,gamma)}, att2 -> {(1,alpha),(2,dlta)};
+	arrows;
+} : C
+
+mapping F = {
+	nodes a -> c, b -> c;
+	attributes att1 -> att, att2 -> att;
+	arrows;
+} : C -> D 
+
+instance J = pi F I

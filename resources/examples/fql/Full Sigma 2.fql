@@ -1,0 +1,41 @@
+schema T = {
+	nodes s;
+	attributes;
+	arrows;
+	equations;
+}
+
+instance I = {
+	nodes s->{1,2};
+	attributes;
+	arrows;
+} :  T
+
+schema Loop = {
+	nodes s;
+	attributes;
+	arrows f:s->s;
+	equations s.f.f.f.f.f=s.f.f.f;
+}
+
+instance J = {
+	nodes s->{1,2,3,4,5,6,7};
+	attributes;
+	arrows f->{(1,2),(2,3),(3,4),(4,3),(5,2), (6,7),(7,6)};
+} :  Loop
+
+mapping F = {
+	nodes s->s;
+	attributes;
+	arrows;
+} : T -> Loop
+
+mapping G = {
+	nodes s->s;
+	attributes;
+	arrows f->s;
+} : Loop -> T
+
+instance Sigma_FI = SIGMA F I
+
+instance Sigma_GJ = SIGMA G J

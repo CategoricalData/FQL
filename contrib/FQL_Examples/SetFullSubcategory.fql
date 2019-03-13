@@ -1,0 +1,18 @@
+schema upto2 = {
+	nodes
+		a0,
+		a1,
+		a2;
+	attributes;
+	arrows
+		f01:a0->a1,
+		f12_1:a1->a2,
+		f21:a2->a1,
+		f22_21:a2->a2;
+	equations
+		a0.f01.f12_1.f22_21=a0.f01.f12_1,
+		a1.f12_1.f21=a1,
+		a2.f22_21.f22_21=a2,
+		a2.f22_21.f21=a2.f21
+		;
+}

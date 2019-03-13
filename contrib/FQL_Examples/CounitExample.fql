@@ -1,0 +1,29 @@
+schema One = {
+	nodes a;
+	attributes attx:a->string,atty:a->string,attz:a->string;
+	arrows;
+	equations;
+}
+
+schema Join = {
+	nodes x,y,z;
+	attributes attx:x->string,atty:y->string,attz:z->string;
+	arrows f:x->z, g:y->z;
+	equations;
+}
+
+mapping ex = {
+	nodes x->a, y->a, z->a;
+	attributes attx->attx, atty->atty, attz->attz;
+	arrows f->a, g->a;
+} : Join -> One 
+
+instance I = {
+	nodes x->{1,2,3},y->{4,5,6,7},z->{ev,od};
+	attributes x->{(1,1),(2,2),(3,3)},y->{(4,4),(5,5),(6,6),(7,7)},z->{(ev,even),(od,odd)};
+	arrows f->{(1,od),(2,ev),(3,od)},g->{(4,ev),(5,od),(6,ev),(7,od)};
+} :  Join
+
+instance J = pi ex I
+
+instance K = delta ex I

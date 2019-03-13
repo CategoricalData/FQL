@@ -1,0 +1,217 @@
+/* Here we have males and females, each with first and last names, living in a dwelling in a city.*/
+schema MalesAndFemales = { 
+ nodes
+ 	Male, Female, Dwelling, City;
+ attributes
+ 	DwellingDesc:Dwelling->string,
+	CityName:City->string,
+	FirstNameM:Male->string,
+	LastNameM:Male->string,
+	FirstNameF:Female->string,
+	LastNameF:Female->string;
+ arrows
+	LivesM:Male->Dwelling,
+	LivesF:Female->Dwelling,
+	IsIn:Dwelling->City;
+ equations;
+}
+
+// We put in the simpsons, and the creators of FQL.
+instance I = {
+ nodes
+	Male->{1,2,3,4,5},
+	Female->{1,2,3,4},
+	Dwelling->{1,2,3,4},
+	City->{1,2,3,4};
+ attributes
+	CityName->{(1,Springfield),(2,Shelbyville),(3,Cambridge),(4,Somerville)},
+	FirstNameM->{(1,Homer),(2,Bart),(3,Ned),(4,David),(5,Ryan)},
+	LastNameM->{(1,Simpson),(2,Simpson),(3,Flanders),(4,Spivak),(5,Wisnesky)},
+	FirstNameF->{(1,Marge),(2,Lisa),(3,Maggie),(4,Maud)},
+	LastNameF->{(1,Simpson),(2,Simpson),(3,Simpson),(4,Flanders)},
+	DwellingDesc->{(1,House),(2,House),(3,SmallAptBldg),(4,LargeAptBldg)};
+ arrows
+	LivesM->{(1,1),(2,1),(3,2),(4,3),(5,4)},
+	LivesF->{(1,1),(2,1),(3,1),(4,2)},
+	IsIn->{(1,1),(2,1),(3,4),(4,3)};
+} : MalesAndFemales
+	
+// Here we just have people with first names living in cities.
+schema Basic = {
+ nodes Person, City;
+ attributes
+	FirstName:Person->string,
+	LastName:Person->string,
+	CityName:City->string;
+ arrows
+ 	LivesIn:Person->City;
+ equations;
+}
+
+// We'll attach Person to Female.
+mapping JustFems = {
+ nodes
+	Person->Female,
+	City->City;
+ attributes
+	FirstName->FirstNameF,
+	LastName->LastNameF,
+	CityName->CityName;
+ arrows
+	LivesIn->Female.LivesF.IsIn;
+} : Basic -> MalesAndFemales
+
+//Get the information about Females.
+instance JustFemsI = delta JustFems I 
+
+/*We don't plan to have any two cities with the same name, so we remove the key.*/
+schema VeryBasic = {
+ nodes Person;
+ attributes
+	FirstName:Person->string,
+	LastName:Person->string,
+	CityName:Person->string;
+ arrows;
+ equations;
+}
+
+/*Combine the person and the city, so that CityName is an attribute of Person.*/
+mapping Simplify = {
+ nodes
+	Person->Person,
+	City->Person;
+ attributes
+	FirstName->FirstName,
+	LastName->LastName,
+	CityName->CityName;
+ arrows
+	LivesIn->Person;
+} : Basic -> VeryBasic
+
+instance SimpleFemsI  = pi Simplify JustFemsI //A one-table summary of the females.
+
+/*SimpleFemsI and SimpleFems2I should return the same thing*/
+mapping idVB = id VeryBasic
+query FemSummary = delta JustFems pi Simplify sigma idVB
+instance SimpleFems2I = eval FemSummary I
+
+/*We no longer care about gender, but we want all the data in MalesAndFemales (not just the females).*/
+schema People = {
+ nodes
+ 	Person, Dwelling, City;
+ attributes
+	DwellingDesc:Dwelling->string,
+	FirstName:Person->string,
+	LastName:Person->string,
+	CityName:City->string;
+ arrows
+ 	Lives:Person->Dwelling,
+	IsIn:Dwelling->City;
+ equations;
+}
+
+	/*We throw females and males into the same table (Person).*/
+mapping UnionGenders = {
+ nodes
+	Male->Person,
+	Female->Person,
+	Dwelling->Dwelling,
+	City->City;
+ attributes
+	DwellingDesc->DwellingDesc,
+	FirstNameM->FirstName,
+	LastNameM->LastName,
+	FirstNameF->FirstName,
+	LastNameF->LastName,
+	CityName->CityName;
+ arrows
+	LivesM->Person.Lives,
+	LivesF->Person.Lives,
+	IsIn->Dwelling.IsIn;
+} : MalesAndFemales -> People
+
+instance UnionGendersI = sigma UnionGenders I /*Apply sigma to union the genders.*/
+
+/*We no longer care about dwelling description; drop it.*/
+schema BasicPeople = {
+ nodes
+ 	Person, Dwelling, City;
+ attributes
+	FirstName:Person->string,
+	LastName:Person->string,
+	CityName:City->string;
+ arrows
+ 	Lives:Person->Dwelling,
+	IsIn:Dwelling->City;
+ equations;
+}
+
+mapping ForgetDwellingDesc = {
+ nodes
+	Person->Person,
+	Dwelling->Dwelling,
+	City->City;
+ attributes
+	FirstName->FirstName,
+	LastName->LastName,
+	CityName->CityName;
+ arrows
+	Lives->Person.Lives,
+	IsIn->Dwelling.IsIn;
+} : BasicPeople -> People
+
+mapping Simplify2 = {
+ nodes
+	Person->Person,
+	Dwelling->Person,
+	City->Person;
+ attributes
+	FirstName->FirstName,
+	LastName->LastName,
+	CityName->CityName;
+ arrows
+	Lives->Person,
+	IsIn->Person;
+} : BasicPeople -> VeryBasic
+
+query q = delta ForgetDwellingDesc pi Simplify2 sigma idVB
+instance BasicPeopleI = eval q UnionGendersI
+
+/*We now want a schema that shows pairs of males and females living together.*/
+schema Cohabitators = {
+ nodes
+	Pair, Dwelling, City;
+ attributes
+	DwellingDesc:Dwelling->string,
+	FirstNameM:Pair->string,
+	LastNameM:Pair->string,
+	FirstNameF:Pair->string,
+	LastNameF:Pair->string,
+	CityName:City->string;
+ arrows
+	Lives:Pair->Dwelling,
+	IsIn:Dwelling->City;
+ equations;
+}
+	
+/*We send males and females both to Pair.*/
+mapping BothGenders = {
+ nodes
+	Male->Pair,
+	Female->Pair,
+	Dwelling->Dwelling,
+	City->City;
+ attributes
+	DwellingDesc->DwellingDesc,
+	FirstNameM->FirstNameM,
+	LastNameM->LastNameM,
+	FirstNameF->FirstNameF,
+	LastNameF->LastNameF,
+	CityName->CityName;
+ arrows
+	LivesM->Pair.Lives,
+	LivesF->Pair.Lives,
+	IsIn->Dwelling.IsIn;
+}:MalesAndFemales->Cohabitators
+
+instance CohabitatorsI = pi BothGenders I //We use pi to join the tables and see our cohabitators.

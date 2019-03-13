@@ -1,0 +1,18 @@
+string : type
+nat : type
+
+length : string -> nat
+reverse : string -> string 
+
+C = schema {
+ nodes X;
+ edges att1 : X -> string, att2 : X -> nat;
+ equations X.att1.length = X.att2;
+}
+
+F = mapping {
+ nodes X -> X;
+ edges att1 -> X.att1.reverse.reverse, att2 -> X.att2;
+} : C -> C
+
+//eq1 : reverse.reverse = string

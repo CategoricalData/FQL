@@ -1,0 +1,74 @@
+schema AxPB = {
+	nodes a,b,Pb,Pbp,axPb;
+	attributes atta:a->string,attb:b->string;
+	arrows pi1:axPb->a,pi2:axPb->Pb,el:Pbp->b,set:Pbp->Pb;
+	equations;
+}
+
+instance I = {
+	nodes
+		a->{1,2},
+		b->{a,b,c},
+		Pb->{e,a,b,c,ab,ac,bc,abc},
+		Pbp->{a,b,c,aba,abb,aca,acc,bcb,bcc,abca,abcb,abcc},
+		axPb->{e1,e2,a1,a2,b1,b2,c1,c2,ab1,ab2,ac1,ac2,bc1,bc2,abc1,abc2};
+	attributes
+		atta->{(1,1),(2,2)},
+		attb->{(a,a),(b,b),(c,c)};
+	arrows
+		pi1->{(e1,1),(e2,2),(a1,1),(a2,2),(b1,1),(b2,2),(c1,1),(c2,2),(ab1,1),(ab2,2),(ac1,1),(ac2,2),(bc1,1),(bc2,2),(abc1,1),(abc2,2)},
+		pi2->{(e1,e),(e2,e),(a1,a),(a2,a),(b1,b),(b2,b),(c1,c),(c2,c),(ab1,ab),(ab2,ab),(ac1,ac),(ac2,ac),(bc1,bc),(bc2,bc),(abc1,abc),(abc2,abc)},
+		el->{(a,a),(b,b),(c,c),(aba,a),(abb,b),(aca,a),(acc,c),(bcb,b),(bcc,c),(abca,a),(abcb,b),(abcc,c)},
+		set->{(a,a),(b,b),(c,c),(aba,ab),(abb,ab),(aca,ac),(acc,ac),(bcb,bc),(bcc,bc),(abca,abc),(abcb,abc),(abcc,abc)};
+} :  AxPB
+
+schema C = {
+	nodes a,b,Pb,axPb,Pbp,axPbp,axb;
+	attributes atta:a->string,attb:b->string;
+	arrows 
+		pi1:axPb->a,
+		pi2:axPb->Pb,
+		el:Pbp->b,
+		set:Pbp->Pb,
+		q1:axPbp->axPb,
+		q2:axPbp->Pbp,
+		r1:axb->a,
+		r2:axb->b,
+		link:axPbp->axb;
+	equations
+		axPbp.q1.pi2=axPbp.q2.set,
+		axPbp.q1.pi1=axPbp.link.r1,
+		axPbp.q2.el=axPbp.link.r2;
+}
+
+mapping F = {//an inclusion
+	nodes
+		a->a,
+		b->b,
+		Pb->Pb,
+		Pbp->Pbp,
+		axPb->axPb;
+	attributes atta->atta,attb->attb;
+	arrows 
+		pi1->axPb.pi1,
+		pi2->axPb.pi2,
+		el->Pbp.el,
+		set->Pbp.set;
+} : AxPB -> C
+
+instance I2=pi F I
+
+schema PAxB = {
+	nodes a,b,axb,Paxbp,Paxb;
+	attributes atta:a->string,attb:b->string;
+	arrows pi1:axb->a,pi2:axb->b,el:Paxbp->axb,set:Paxbp->Paxb;
+	equations;
+}
+
+mapping G = {
+	nodes a->a,b->b,axb->axb,Paxbp->axPbp,Paxb->axPb;
+	attributes atta->atta,attb->attb;
+	arrows pi1->axb.r1,pi2->axb.r2,el->axPbp.link,set->axPbp.q1;
+} : PAxB -> C
+
+instance I3=delta G I2

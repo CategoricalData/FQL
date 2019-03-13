@@ -1,0 +1,16 @@
+//The keyword 'external' can be used to suppress CREATE TABLE statements
+//in the generated SQL output.  Hence, the generated output can be run
+//on pre-existing database intances.
+
+schema C = { nodes T; attributes; arrows; equations; }
+
+// generates CREATE TABLE I_T(c1 VARCHAR(128), c0 VARCHAR(128));
+instance I = { nodes T -> {}; attributes; arrows; } : C
+
+// copies given extblname into J
+instance J = external C extblname
+
+// external (and only external) instances can have external transforms
+transform K = external J J exttransname
+
+drop I //drops tables for I

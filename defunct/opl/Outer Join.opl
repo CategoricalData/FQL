@@ -1,0 +1,154 @@
+preamble = pragma {
+	options
+		"opl_prover_force_prec" = "true";
+}
+
+Ty = theory {
+	sorts
+		Nat, Bool, NullableNat, String;
+	symbols
+		alice, bob, charlie, dave, evan : String,
+		"1", "2", "3" : Nat,
+		nullNat : NullableNat,
+		inNat : Nat -> NullableNat,
+		tru, fals : Bool,
+		eqNat : Nat,Nat -> Bool,
+		ifNat : Bool, NullableNat, NullableNat -> NullableNat;
+	equations
+		eqNat("1", "2") = fals,
+		eqNat("1", "3") = fals,
+		eqNat("2", "1") = fals,
+		eqNat("2", "3") = fals,
+		eqNat("3", "1") = fals,
+		eqNat("3", "2") = fals,
+		eqNat("1", "1") = tru,
+		eqNat("2", "2") = tru,
+		eqNat("3", "3") = tru,
+		forall x, y. ifNat(tru, x, y) = x,
+		forall x, y. ifNat(fals, x, y) = y;
+}
+
+S = SCHEMA {
+	entities
+		A, B;
+	edges;
+	attributes
+		Aname : A -> String,
+		Bname : B -> String,
+		Aid : A -> Nat, 
+		Bid : B -> Nat;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+T= SCHEMA {
+	entities
+		C;
+	edges;
+	attributes
+		CAname : C -> String,
+		CBname : C -> String,
+		Cid : C -> NullableNat;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+OuterJoin = query {
+ 	CQ = {for a:A, b:B;
+ 		 where;
+ 		 return Cid = ifNat(eqNat(a.Aid, b.Bid), inNat(a.Aid), nullNat),
+ 		        CAname = a.Aname,
+ 		        CBname = b.Bname;
+ 		 keys;} : C
+} : S -> T 
+
+I = INSTANCE {
+	generators
+		a1, a2 : A,
+		    b2, b3 : B;
+	equations
+		a1.Aname = alice, a1.Aid = "1",
+		a2.Aname = bob, a2.Aid = "2",
+		b2.Bname = charlie, b2.Bid = "2",
+		b3.Bname = dave, b3.Bid = "3";
+} : S
+
+J = apply OuterJoin I
+
+
+////////////////////////////////////////////
+
+Ty2 = theory {
+	sorts
+		Nat, Bool, String;
+	symbols
+		alice, bob, charlie, dave, evan : String,
+		"1", "2", "3" : Nat,
+		null : Nat,
+		tru, fals : Bool,
+		eq : Nat,Nat -> Bool,
+		if : Bool, Nat, Nat -> Nat;
+	equations
+		eq("1", "2") = fals,
+		eq("1", "3") = fals,
+		eq("1", null) = fals,
+		eq("2", "1") = fals,
+		eq("2", "3") = fals,
+		eq("2", null) = fals,
+		eq("3", "1") = fals,
+		eq("3", "2") = fals,
+		eq("3", null) = fals,
+		eq("1", "1") = tru,
+		eq("2", "2") = tru,
+		eq("3", "3") = tru,
+		eq(null, null) = tru,
+		forall x, y. if(tru, x, y) = x,
+		forall x, y. if(fals, x, y) = y;
+}
+
+S2 = SCHEMA {
+	entities
+		A, B;
+	edges;
+	attributes
+		Aname : A -> String,
+		Bname : B -> String,
+		Aid : A -> Nat, 
+		Bid : B -> Nat;
+	pathEqualities;
+	obsEqualities;
+} : Ty2
+
+T2 = SCHEMA {
+	entities
+		C;
+	edges;
+	attributes
+		CAname : C -> String,
+		CBname : C -> String,
+		Cid : C -> Nat;
+	pathEqualities;
+	obsEqualities;
+} : Ty2
+
+OuterJoin2 = query {
+ 	CQ = {for a:A, b:B;
+ 		 where;
+ 		 return Cid = if(eq(a.Aid, b.Bid), a.Aid, null),
+ 		        CAname = a.Aname,
+ 		        CBname = b.Bname;
+ 		 keys;} : C
+} : S2 -> T2 
+
+I2 = INSTANCE {
+	generators
+		a1, a2 : A,
+		    b2, b3 : B;
+	equations
+		a1.Aname = alice, a1.Aid = "1",
+		a2.Aname = bob, a2.Aid = "2",
+		b2.Bname = charlie, b2.Bid = "2",
+		b3.Bname = dave, b3.Bid = "3";
+} : S2
+
+J2 = apply OuterJoin2 I2

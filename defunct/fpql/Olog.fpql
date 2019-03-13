@@ -1,0 +1,15 @@
+S = schema {
+	nodes "arginine", "an electrically-charged side chain", "a side chain", 
+		 "an amino acid found in dairy", "an amino acid", "an amine group",
+		 "a carboxylic acid";
+	edges "is " : "arginine" -> "an amino acid found in dairy",
+	      "is" : "an amino acid found in dairy" -> "an amino acid",
+	      "is  " : "arginine" -> "an amino acid",
+	      "has" : "arginine" -> "an electrically-charged side chain",
+	      "has   " : "an amino acid" -> "a side chain",
+	      "is   " : "an electrically-charged side chain" -> "a side chain",
+	      "has " : "an amino acid" -> "a carboxylic acid",
+	      "has  " : "an amino acid" -> "an amine group";
+	equations
+	"is "."is" = "is  ", "has"."is   " = "is  "."has   ";
+}

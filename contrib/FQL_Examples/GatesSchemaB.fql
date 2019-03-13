@@ -1,0 +1,74 @@
+schema Bbig = {
+	nodes 
+		patient,
+		BPl, 
+		BPr, 
+		Wts, 
+		Wtb;
+	attributes 
+		valbpl:BPl->int,
+		valbpr:BPr->int,
+		valwts:Wts->int,
+		valwtb:Wtb->int,
+		name:patient->string
+		;
+	arrows
+		bplpat:BPl->patient,
+		bprpat:BPr->patient,
+		wtspat:Wts->patient,
+		wtbpat:Wtb->patient;
+	equations;
+}
+
+instance I = {
+	nodes
+		patient->{p,j},
+		BPl->{p,j}, 
+		BPr->{p}, 
+		Wts->{j}, 
+		Wtb->{};
+	attributes
+		valbpl->{(p,130),(j,115)},
+		valbpr->{(p,125)},
+		valwts->{(j,130)},
+		valwtb->{},
+		name->{(p,Peter),(j,Jane)}
+		;
+	arrows
+		bplpat->{(p,p),(j,j)},
+		bprpat->{(p,p)},
+		wtspat->{(j,j)},
+		wtbpat->{};
+
+} : Bbig
+
+schema B = {
+	nodes Obs,Pat;
+	attributes val:Obs->int,name:Pat->string;
+	arrows ObsPat:Obs->Pat;
+	equations;
+}
+
+mapping F = {
+	nodes
+		patient->Pat,
+		BPl->Obs, 
+		BPr->Obs, 
+		Wts->Obs, 
+		Wtb->Obs;
+	attributes
+		valbpl->val,
+		valbpr->val,
+		valwts->val,
+		valwtb->val,
+		name->name
+		;
+	arrows
+		bplpat->Obs.ObsPat,
+		bprpat->Obs.ObsPat,
+		wtspat->Obs.ObsPat,
+		wtbpat->Obs.ObsPat;
+} : Bbig -> B
+
+instance J=sigma F I
+

@@ -1,0 +1,73 @@
+C = theory {
+ 	sorts 
+		T1, T2, string, int;
+ 	symbols
+		t1_ssn, t1_first, t1_last : T1 -> string,
+		t2_first, t2_last : T2 -> string,
+		t2_salary : T2 -> int;
+ 	equations; 
+}
+
+D = theory {
+ 	sorts 
+		T, string, int;
+ 	symbols
+		ssn0, first0, last0    : T -> string,
+		salary0 : T -> int;
+ 	equations;
+}
+
+F = mapping {
+ 	sorts 
+		T1 -> T,
+		T2 -> T,
+		string -> string,
+		int -> int;
+ 	symbols
+		t1_ssn    -> forall x:T. ssn0(x),
+		t1_first  -> forall x:T. first0(x),
+		t2_first  -> forall x:T. first0(x),
+		t1_last   -> forall x:T. last0(x),
+		t2_last   -> forall x:T. last0(x),
+		t2_salary -> forall x:T. salary0(x);
+} : C -> D
+
+J = model {
+	sorts 
+		T -> { XF667, XF891, XF221 },
+		string -> { "115-234", "112-988", "198-887", Bob, Sue, Alice, Smith, Jones },
+		int -> { 250, 100, 300 };
+ 	symbols
+		ssn0    -> { ((XF667), "115-234"),((XF891),"112-988"),((XF221),"198-887") },
+		first0  -> { ((XF667),Bob),((XF891),Sue),((XF221),Alice) },
+		last0   -> { ((XF667),Smith),((XF891),Smith),((XF221),Jones) },
+		salary0 -> { ((XF667),250),((XF891),300),((XF221),100) };
+} : D 
+
+deltaFJ = delta F J
+
+J0 = model {
+ sorts 
+	T -> { XF66,XF89,XF22, xxx },
+	string -> { "115-23", "112-98", "198-88", Bo, Su, Alic, Smit, Jone, xxx },
+	int -> { 25, 10, 30, 0 };
+ symbols
+	ssn0    -> { ((XF66), "115-23"),((XF89),"112-98"),((XF22),"198-88"), ((xxx),"xxx") },
+	first0  -> { ((XF66),Bo),((XF89),Su),((XF22),Alic),((xxx), "xxx" )},
+	last0   -> { ((XF66),Smit),((XF89),Smit),((XF22),Jone), ((xxx), "xxx") },
+	salary0 -> { ((XF66),25),((XF89),30),((XF22),10), ((xxx), 0) };
+} : D
+
+h = transform {
+ sorts 
+ 	T -> {(XF667,XF66),(XF891,XF89),(XF221,XF22)},
+ 	string -> { ("115-234","115-23"), ("112-988","112-98"), ("198-887","198-88"), 
+ 	            (Bob,Bo), (Sue,Su), (Alice,Alic), (Smith,Smit), (Jones,Jone) },
+ 	int -> {(250,25),(100,10),(300,30)};
+} : J -> J0
+
+h0 = delta F h
+
+//Q = DELTA F
+
+//K = apply Q J

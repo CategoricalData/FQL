@@ -1,0 +1,14 @@
+//Illustrates ASWRITTEN macro for automatically adding attributes to schemas and instances.
+
+schema C = {
+	nodes A;
+	attributes ASWRITTEN;
+	arrows f:A->A;
+equations A.f.f.f.f.f.f=A.f;
+}
+
+instance I = {
+	nodes A->{a,b,c,d,e};
+	attributes ASWRITTEN;
+	arrows f->{(a,b),(b,c),(c,d),(d,e),(e,a)};
+} : C

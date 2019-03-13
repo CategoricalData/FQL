@@ -1,0 +1,86 @@
+////////////////////////////////////////////////////////////////////
+//functors Set -> Set
+
+functor Maybe = { 
+ objects
+  X -> (unit + X);
+ arrows
+  f : A -> B -> (inl unit B + (f ; inr unit B));
+} : Set -> Set
+
+set Maybe3 = apply Maybe on object 3
+set Maybe4 = apply Maybe on object 4
+
+function MaybeF = apply Maybe on arrow {(0,1),(1,2),(2,0),(3,0)} : 4 -> 3
+
+functor Double = {
+		objects X->(X*X);
+		arrows f:A->B -> ((fst A A; f)*(snd A A; f));
+} : Set -> Set
+
+set dbl=apply Double on object {1,2,3}
+
+function f = apply Double on arrow id {1,2,3}
+
+transform ret = {
+ objects
+  X -> inr unit X;
+} : (id Set : Set -> Set) -> (Maybe : Set -> Set)
+
+transform join = {
+ objects
+  X -> (inl unit X + id (unit + X));
+} : ((Maybe ; Maybe) : Set -> Set) -> (Maybe : Set -> Set)
+
+function ret1 = apply ret {1,2,3}
+set set1 = apply Maybe on object {1,2,3}
+set set2 = apply Maybe on object set1
+function joined = apply join set2
+
+category K = kleisli Maybe ret join
+
+////////
+
+category C = {
+	objects a,b,c;
+	arrows f:a->b,g:b->c;
+	equations;
+}
+
+functor M = {
+	objects a->a, b->c,c->c;
+	arrows f->a.f.g,g->c;
+} : C -> C
+
+transform eta = {
+	objects a->a, b->b.g, c->c;
+} : (id C:C->C) -> (M: C->C)
+
+transform mu = {
+	objects a->a, b->c, c->c;
+} : ((M;M):C->C) -> (M: C->C) 
+
+category M_kleisli = kleisli M eta mu
+
+///////////
+
+category D = {
+	objects a,b,c;
+	arrows f:a->b,g:b->c;
+	equations;
+}
+
+functor T = {
+	objects a->a, b->a,c->c;
+	arrows f->a,g->a.f.g;
+} : D -> D
+
+transform epsilon = {
+	objects a->a, b->a.f, c->c;
+} : (T: D->D) -> (id D:D->D)
+
+transform Delta = {
+	objects a->a, b->a, c->c;
+} : (T:D->D) -> ((T;T): D->D) 
+
+category CK = cokleisli T epsilon Delta

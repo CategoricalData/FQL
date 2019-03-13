@@ -1,0 +1,27 @@
+schema C = {
+	nodes E, D;
+	attributes EName:E->string,DName:D->string;
+	arrows Works:E->D, Secr:D->E;
+	equations D.Secr.Works=D;
+}
+
+schema C0 = {
+	nodes E,D;
+	attributes EName:E->string,DName:D->string;
+	arrows;
+	equations;
+}
+
+instance I = {
+	nodes E->{a,b,c},D->{l,m};
+	attributes EName->{(a,amy),(b,bob),(c,carl)},DName->{(l,ling),(m,math)};
+	arrows ;
+} :  C0
+
+mapping ii = {
+	nodes E->E,D->D;
+	attributes EName->EName,DName->DName;
+	arrows;
+} : C0 -> C
+
+instance J= pi ii I

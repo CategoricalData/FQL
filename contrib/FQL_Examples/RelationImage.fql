@@ -1,0 +1,128 @@
+schema A3 = {
+	nodes r,d;
+	attributes;
+	arrows f1:r->d,f2:r->d,f3:r->d;//loop 1..3
+	equations;
+}
+
+//Any instance of type A3 can replace X3.
+instance X3 = {
+	nodes r->{1,2,3},d->{1,2,3,4,5,6,7};
+	attributes;
+	arrows 
+		f1->{(1,1),(2,1),(3,1)},
+		f2->{(1,1),(2,2),(3,2)},
+		f3->{(1,4),(2,3),(3,5)};
+} : A3 
+
+//Note in this case, the collective image of f1,f2,f3 is the proper subset {1,2,3,4,5}.
+
+schema B3 = {
+	nodes r, m1,m2,m3,d;
+	attributes;
+	arrows 
+		i1:r->m1,i2:r->m2,i3:r->m3,//loop 1..3
+		f1:m1->d,f2:m2->d,f3:m3->d;//loop 1..3
+	equations;
+}
+
+mapping F3 = {
+	nodes 
+		r->r, d->d, 
+		m1->r,m2->r,m3->r;//loop 1..3
+	attributes;
+	arrows 
+		i1->r, i2->r, i3->r,//loop 1..3
+		f1->r.f1, f2->r.f2,f3->r.f3;//loop 1..3
+} : B3 -> A3
+
+schema C3 = {
+	nodes r,m,d;
+	attributes;
+	arrows 
+		i1:r->m,i2:r->m,i3:r->m,//loop 1..3
+		f:m->d;
+	equations;
+}
+
+mapping G3 = {
+	nodes r->r, m1->m,m2->m,m3->m,d->d;
+	attributes;
+	arrows 
+		i1->r.i1, i2->r.i2, i3->r.i3, 
+		f1->m.f, f2->m.f, f3->m.f;
+} : B3 -> C3
+
+instance Y3=delta F3 X3
+instance Z3=sigma G3 Y3
+
+//Now we just find the image of f as before.
+
+schema B = {
+	nodes r,a,b,c,d;
+	attributes;
+	arrows 
+		i1:r->a,i2:r->a,i3:r->a,//loop 1..3
+		f:a->b,g:a->c,h:b->d,i:c->d;
+	equations;
+}
+
+schema C = {
+	nodes r,a,b,c,d,e;
+	attributes;
+	arrows 
+		i1:r->a,i2:r->a,i3:r->a,//loop 1..3
+		f:a->b,g:a->c,h:b->d,i:c->d, ff:e->b,gg:e->c;
+	equations e.ff.h=e.gg.i;
+}
+
+schema D = {
+	nodes r,v,w,x,y;
+	attributes;
+	arrows 
+		i1:r->w,i2:r->w,i3:r->w,//loop 1..3
+		f:v->w,ff:v->w,g:w->x,h:x->y;
+	equations v.f.g=v.ff.g;
+}
+
+mapping F = {
+	nodes r->r,a->m,b->m,c->m,d->d;
+	attributes;
+	arrows 
+		i1->r.i1,i2->r.i2,i3->r.i3,//loop 1..3
+		f->m,g->m,h->m.f,i->m.f;
+} : B -> C3
+
+mapping G = {
+	nodes r->r,a->a,b->b,c->c,d->d;
+	attributes ;
+	arrows 
+		i1->r.i1,i2->r.i2,i3->r.i3,//loop 1..3
+		f->a.f,g->a.g,h->b.h,i->c.i;
+} : B -> C
+
+
+mapping H = {
+	nodes r->r,e->v,a->w,b->w,c->w,d->y;
+	attributes;
+	arrows 
+		i1->r.i1,i2->r.i2,i3->r.i3,//loop 1..3
+		f->w,g->w,h->w.g.h,i->w.g.h,ff->v.f,gg->v.ff;
+} : C -> D
+
+mapping I = {
+	nodes r->r,d->x;
+	attributes;
+	arrows 
+		f1->r.i1.g,
+		f2->r.i2.g,
+		f3->r.i3.g;//loop 1..3
+} : A3 -> D
+
+
+instance W1=delta F Z3
+instance W2=pi G W1 
+instance W3=SIGMA H W2
+instance RelationImage=delta I W3
+
+

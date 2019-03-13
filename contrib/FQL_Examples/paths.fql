@@ -1,0 +1,110 @@
+schema Path1 = {  //This is the graph-indexing schema
+	nodes A1,A0;
+	attributes att1:A1->string,att0:A0->string;
+	arrows src1:A1->A0, tgt1:A1->A0;
+	equations;
+}
+
+
+ instance G1 = {
+	nodes A0->{a,b,c,d,e}, A1->{f,g,h,i,j,k,l};
+	attributes 
+		att0->{(a,a),(b,b),(c,c),(d,d),(e,e)},
+		att1->{(f,f),(g,g),(h,h),(i,i),(j,j),(k,k),(l,l)};
+	arrows 
+		src1->{(f,a),(g,b),(h,a),(i,c),(j,b),(k,d),(l,e)},
+		tgt1->{(f,b),(g,c),(h,b),(i,d),(j,d),(k,e),(l,e)};
+} : Path1
+
+schema Path2 = {
+	nodes A2,A1,A0;
+	attributes att1:A1->string,att0:A0->string;
+	arrows src2:A2->A1, tgt2:A2->A1, src1:A1->A0, tgt1:A1->A0;
+	equations A2.src2.tgt1=A2.tgt2.src1;
+}
+
+mapping UpTo2 = {
+	nodes A0->A0,A1->A1;
+	attributes att1->att1,att0->att0;
+	arrows 
+		src1->A1.src1,
+		tgt1->A1.tgt1;
+} : Path1 -> Path2
+
+instance G2 = pi UpTo2 G1
+
+schema Comp2 = {
+	nodes A2,A1,A0;
+	attributes att1:A1->string,att0:A0->string;
+	arrows 
+		src2:A2->A1, tgt2:A2->A1,
+		comp2:A2->A1, 
+		src1:A1->A0, tgt1:A1->A0;
+	equations 
+		A2.src2.tgt1=A2.tgt2.src1,
+		A2.src2.src1=A2.comp2.src1,
+		A2.tgt2.tgt1=A2.comp2.tgt1;
+}
+
+mapping AddComp2 = {
+	nodes A0->A0,A1->A1,A2->A2;
+	attributes att1->att1, att0->att0;
+	arrows src2->A2.src2, tgt2->A2.tgt2, src1->A1.src1,tgt1->A1.tgt1;
+} : Path2 -> Comp2
+
+instance G2Comp2 = SIGMA AddComp2 G2
+
+schema Path3 = {
+	nodes 
+		A3,
+		A2,
+		A1,A0;
+	attributes att1:A1->string,att0:A0->string;
+	arrows 
+		src3:A3->A2, tgt3:A3->A2, 
+		src2:A2->A1, tgt2:A2->A1, 
+		src1:A1->A0, tgt1:A1->A0;
+	equations 
+		A3.src3.tgt2=A3.tgt3.src2,
+		A2.src2.tgt1=A2.tgt2.src1;
+}
+
+mapping UpTo3 = {
+	nodes A0->A0,A1->A1,A2->A2;
+	attributes att1->att1,att0->att0;
+	arrows src1->A1.src1,tgt1->A1.tgt1,src2->A2.src2,tgt2->A2.tgt2;
+} : Path2 -> Path3
+
+instance G3 = pi UpTo3 G2
+
+schema Comp3 = {
+	nodes 
+		A3,
+		A2,
+		A1,A0;
+	attributes att1:A1->string,att0:A0->string;
+	arrows 
+		src3:A3->A2, tgt3:A3->A2, 
+		comp3:A3->A1, comp2:A2->A1, 
+		src2:A2->A1, tgt2:A2->A1, 
+		src1:A1->A0, tgt1:A1->A0;
+	equations 
+		A3.src3.tgt2=A3.tgt3.src2,
+		A2.src2.tgt1=A2.tgt2.src1,
+		A2.src2.src1=A2.comp2.src1,
+		A2.tgt2.tgt1=A2.comp2.tgt1,
+		A3.src3.src2.src1=A3.comp3.src1,
+		A3.tgt3.tgt2.tgt1=A3.comp3.tgt1
+		;
+}
+
+mapping AddComp3 = {
+	nodes A0->A0,A1->A1,A2->A2,A3->A3;
+	attributes att1->att1, att0->att0;
+	arrows 
+		src3->A3.src3, tgt3->A3.tgt3,
+		src2->A2.src2, tgt2->A2.tgt2, 
+		src1->A1.src1,tgt1->A1.tgt1;
+} : Path3 -> Comp3
+
+instance G3Comp3 = SIGMA AddComp3 G3

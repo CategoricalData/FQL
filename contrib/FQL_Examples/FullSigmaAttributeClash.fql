@@ -1,0 +1,44 @@
+schema C = {
+	nodes a,v;
+	attributes vatt:v->string;
+	arrows s:a->v, t:a->v;
+	equations;
+}
+
+instance I = {
+ nodes
+  a -> {2, 1}, 
+  v -> {b, a2, a1};
+ attributes
+  vatt -> {(b, bob), (a2, alice), (a1, alice)};
+ arrows
+  t -> {(2, a1), (1, b)}, 
+  s -> {(2, a2), (1, a2)};
+} : C
+
+instance I2 = {
+ nodes
+  a -> {1}, 
+  v -> {b, a2, a1};
+ attributes
+  vatt -> {(b, bob), (a2, alice), (a1, alice)};
+ arrows
+  t -> {(1, a1)}, 
+  s -> {(1, a2)};
+} : C
+
+schema D = {
+	nodes v;
+	attributes vatt:v->string;
+	arrows;
+	equations;
+}
+
+mapping F = {
+	nodes a->v,v->v;
+	attributes vatt->vatt;
+	arrows s->v, t->v;
+} : C -> D
+
+//instance J = SIGMA F I
+instance J2 = SIGMA F I2

@@ -1,0 +1,104 @@
+schema Category = {
+	nodes 
+		Ob, 
+		Hom, 
+		Comp;
+	attributes;
+	arrows
+		Dom:Hom->Ob,
+		Cod:Hom->Ob,
+		Id:Ob->Hom,
+		LeftId:Hom->Comp, //f:a-->b  mapped to id_a ; f
+		RightId:Hom->Comp, //f:a-->b  mapped to f ; id_b
+		First:Comp->Hom,
+		Second:Comp->Hom,
+		Compose:Comp->Hom;
+	equations
+		Ob.Id.Dom=Ob,
+		Ob.Id.Cod=Ob,
+		Hom.LeftId.Second=Hom,
+		Hom.RightId.First=Hom,
+		Hom.LeftId.Compose=Hom,
+		Hom.RightId.Compose=Hom,
+		Hom.LeftId.First=Hom.Dom.Id,
+		Hom.RightId.Second=Hom.Cod.Id,
+		Comp.First.Cod=Comp.Second.Dom,
+		Comp.First.Dom=Comp.Compose.Dom,
+		Comp.Second.Cod=Comp.Compose.Cod;
+}
+
+schema Graph = {
+	nodes Ob, Hom;
+	attributes; 
+	arrows Dom:Hom->Ob, Cod:Hom->Ob;
+	equations;
+}
+
+mapping Free = {
+	nodes Ob->Ob, Hom->Hom;
+	attributes;
+	arrows Dom->Hom.Dom, Cod->Hom.Cod;
+} : Graph -> Category
+
+instance G = {
+	nodes Ob->{a,b,c}, Hom->{f,g};
+	attributes;
+	arrows Dom->{(f,a),(g,b)}, Cod->{(f,b),(g,c)};
+} :  Graph
+
+instance C=SIGMA Free G
+
+instance D=pi Free G
+
+
+schema NamedCategory = {
+	nodes 
+		Ob, 
+		Hom, 
+		Comp;
+	attributes
+		ObName:Ob->string,
+		HomName:Hom->string;
+	arrows
+		Dom:Hom->Ob,
+		Cod:Hom->Ob,
+		Id:Ob->Hom,
+		LeftId:Hom->Comp, //f:a-->b  mapped to id_a ; f
+		RightId:Hom->Comp, //f:a-->b  mapped to f ; id_b
+		First:Comp->Hom,
+		Second:Comp->Hom,
+		Compose:Comp->Hom;
+	equations
+		Ob.Id.Dom=Ob,
+		Ob.Id.Cod=Ob,
+		Hom.LeftId.Second=Hom,
+		Hom.RightId.First=Hom,
+		Hom.LeftId.Compose=Hom,
+		Hom.RightId.Compose=Hom,
+		Hom.LeftId.First=Hom.Dom.Id,
+		Hom.RightId.Second=Hom.Cod.Id,
+		Comp.First.Cod=Comp.Second.Dom,
+		Comp.First.Dom=Comp.Compose.Dom,
+		Comp.Second.Cod=Comp.Compose.Cod;
+}
+
+schema NamedGraph = {
+	nodes Ob, Hom;
+	attributes ObName:Ob->string, HomName:Hom->string;
+	arrows Dom:Hom->Ob, Cod:Hom->Ob;
+	equations;
+}
+
+mapping NamedFree = {
+	nodes Ob->Ob, Hom->Hom;
+	attributes ObName->ObName, HomName->HomName;
+	arrows Dom->Hom.Dom, Cod->Hom.Cod;
+} : NamedGraph -> NamedCategory
+
+instance NamedG = {
+	nodes Ob->{a,b,c}, Hom->{f,g};
+	attributes ObName->{(a,a),(b,b),(c,c)}, HomName->{(f,f),(g,g)};
+	arrows Dom->{(f,a),(g,b)}, Cod->{(f,b),(g,c)};
+} :  NamedGraph
+
+instance NamedC=SIGMA NamedFree NamedG  //requires null option

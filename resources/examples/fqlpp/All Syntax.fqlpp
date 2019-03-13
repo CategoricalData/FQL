@@ -1,0 +1,58 @@
+//Syntax for the FQL fragment of FQL++
+
+category c1 = void
+category c2 = unit
+category c3 = (c2 + c2)
+category c4 = (c2 * c2)
+category c5 = (unit ^ void)
+category c6 = Set
+category C  = {objects; arrows; equations;}
+category CC = union C C
+
+functor f1 = id unit
+functor f2 = (f1 ; f1)
+functor f4 = iso1 c4 c5
+functor f6 = iso2 c4 c5
+functor f7 = (fst c3 c3 * snd c3 c3) 
+functor f8  = (inl c3 c3 + inr c3 c3) 
+functor f9  = curry eval c3 c3 
+functor f10 = {objects; arrows;} : C -> C //mapping
+functor f20 = {objects; arrows;} : C -> Set //instance
+functor f13 = (f20 ^ f20) 
+functor f14 = delta f10
+functor f15 = sigma f10
+functor f16 = pi f10
+functor f17 = apply f14 on object f20
+functor f18 = prop C
+functor t21 = void C Set //need Set here
+functor t22 = unit C Set //need Set here
+functor f3 = ff unit
+functor f5 = tt unit
+
+category c6x = dom f1
+category c7x = cod f2
+
+transform t0 = {objects;} : (f20:C->Set) -> (f20:C->Set) //must have dom and cod of functors  
+transform t1 = id f20
+transform t2 = (t1 ; t1) 
+transform t3x= (inl f20 f20 + inr f20 f20) 
+transform t4x= (fst f20 f20 * snd f20 f20) 
+transform t5 = curry eval f20 f20
+transform t5x = tt f20
+transform t5y = ff f20
+transform t6 = apply f14 on arrow t1
+transform t7 = true C
+transform t8 = false C
+transform t9 = and C
+transform t7y= or C
+transform t7x= not C
+transform t8z= implies C
+transform t8x= return sigma delta f10
+transform t9x= coreturn sigma delta f10
+transform t10= return delta pi f10
+transform t11= coreturn delta pi f10
+transform t12= iso1 f20 f20
+transform t13= iso2 f20 f20
+
+functor f19x = dom t1
+functor t20x = cod t1

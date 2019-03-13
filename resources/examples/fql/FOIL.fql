@@ -1,0 +1,75 @@
+schema Begin = {
+ nodes a, b, c, d;
+ attributes
+	atta:a->string,
+	attb:b->string,
+	attc:c->string,
+	attd:d->string;
+ arrows;
+ equations;
+}
+
+schema Added = {
+ nodes aPLUSb, cPLUSd;
+ attributes
+	attab:aPLUSb->string,
+	attcd:cPLUSd->string;
+ arrows;
+ equations;
+}
+
+schema Multiplied = {
+ nodes aPLUSbTIMEScPLUSd;
+ attributes
+	attab : aPLUSbTIMEScPLUSd -> string,
+	attcd : aPLUSbTIMEScPLUSd -> string;
+ arrows;
+ equations;
+}
+
+mapping F = {
+ nodes
+	a->aPLUSb,
+	b->aPLUSb,
+	c->cPLUSd,
+	d->cPLUSd;
+ attributes
+	atta->attab,
+	attb->attab,
+	attc->attcd,
+	attd->attcd;
+ arrows;
+}:Begin->Added
+
+mapping G = {
+ nodes 
+	aPLUSb->aPLUSbTIMEScPLUSd,
+	cPLUSd->aPLUSbTIMEScPLUSd;
+ attributes
+	attab->attab,
+	attcd->attcd;
+ arrows;
+}:Added->Multiplied
+
+/* Below, put any number of elements into a,b,c,d. 
+ * The output should have (a+b)*(c+d) many elements 
+ */
+
+instance I = {
+ nodes
+	a -> {1},
+	b -> {1,2},
+	c -> {1,2},
+	d -> {1,2,3};
+ attributes
+	atta -> {(1,a1)},
+	attb -> {(1,b1),(2,b2)},
+	attc -> {(1,c1),(2,c2)},
+	attd -> {(1,d1),(2,d2),(3,d3)};
+ arrows;	
+}: Begin
+
+/*(1+2)*(2+3)=15*/
+
+instance J = sigma F I
+instance K =pi G J
