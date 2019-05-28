@@ -1,0 +1,84 @@
+String : type
+
+gecko frog human cow horse dolphin fish : String
+
+C = schema {
+	nodes 
+		Amphibian,
+		LandAnimal,
+		WaterAnimal;
+	edges
+		attA: Amphibian -> String, 
+		attL: LandAnimal -> String, 
+		attW: WaterAnimal -> String,
+		IsAL: Amphibian -> LandAnimal,
+		IsAW: Amphibian -> WaterAnimal;
+	equations;
+}
+
+I = instance {
+	variables 
+		a1 a2: Amphibian,
+		l1 l2 l3 l4 l5: LandAnimal,
+		w1 w2 w3 w4: WaterAnimal;
+	equations
+		a1.attA = gecko, a2.attA = frog,
+		l1.attL = gecko, l2.attL = frog, l3.attL = human, l4.attL = cow, l5.attL = horse,
+		w1.attW = fish, w2.attW = gecko, w3.attW = frog, w4.attW = dolphin,
+		a1.IsAL = l1, a2.IsAL = l2,
+		a1.IsAW = w2, a2.IsAW = w3; 
+} : C
+
+
+D = schema {
+	nodes 
+		yAmphibian,
+		yLandAnimal,
+		yWaterAnimal,
+		yAnimal;
+	edges
+		yattA:yAmphibian->String, 
+		yattL:yLandAnimal->String, 
+		yattW:yWaterAnimal->String,
+		yIsAL:yAmphibian->yLandAnimal,
+		yIsAW:yAmphibian->yWaterAnimal,
+		yIsALL:yLandAnimal->yAnimal,
+		yIsAWW:yWaterAnimal->yAnimal;
+	equations
+		yAmphibian.yIsAL.yIsALL=yAmphibian.yIsAW.yIsAWW;
+}
+
+F = mapping {
+	nodes 
+		Amphibian->yAmphibian,
+		LandAnimal->yLandAnimal,
+		WaterAnimal->yWaterAnimal;
+	edges
+		attA -> yAmphibian.yattA, 
+		attL -> yLandAnimal.yattL, 
+		attW -> yWaterAnimal.yattW,
+		IsAL -> yAmphibian.yIsAL,
+		IsAW -> yAmphibian.yIsAW;
+} : C -> D
+
+J = sigma F I
+
+I0 = instance {
+	variables 
+		xa1: Amphibian,
+		xl1 xl2 xl3 xl4: LandAnimal,
+		xw1 xw2 xw3: WaterAnimal;
+	equations
+		xa1.attA = gecko, 
+		xl1.attL = gecko, xl2.attL = frog, xl3.attL = human, xl4.attL = cow, 
+		xw1.attW = fish, xw2.attW = gecko, xw3.attW = frog, 
+		xa1.IsAL = xl1, 
+		xa1.IsAW = xw2; 
+} : C
+
+t = homomorphism {
+	variables 
+		xa1 -> a1, xl1 -> l1, xl2 -> l2, xl3 -> l3, xl4 -> l4, xw1 -> w1, xw2 -> w2, xw3 -> w3;
+} : I0 -> I
+
+t0 = sigma F t

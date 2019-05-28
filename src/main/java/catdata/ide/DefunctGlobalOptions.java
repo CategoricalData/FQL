@@ -24,8 +24,10 @@ import javax.swing.JTabbedPane;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
+import catdata.fpql.XOptions;
 import catdata.fql.FqlOptions;
 import catdata.fqlpp.FqlppOptions;
+import catdata.opl.OplOptions;
 
 /**
  * 
@@ -48,8 +50,8 @@ public class DefunctGlobalOptions implements Serializable {
 	//public final GeneralOptions general = new GeneralOptions();
 	public final FqlOptions fql = new FqlOptions();
 	public final FqlppOptions fqlpp = new FqlppOptions();
-	//public final XOptions fpql = new XOptions();
-	//public OplOptions opl = new OplOptions(); 
+	public final XOptions fpql = new XOptions();
+	public OplOptions opl = new OplOptions(); 
 	//private final AqlOptionsDefunct aql = new AqlOptionsDefunct();
 	
 	private Options[] options() {

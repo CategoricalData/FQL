@@ -1,0 +1,108 @@
+//In a relational data exchange setting, the type side will be discrete (implies finite), or free 
+Ty = theory {
+	sorts
+		dom;
+	symbols
+		math, cs, "1", "2", "3", "4", "5", alice, bob, charlie, david, evan : dom;
+	equations;
+}
+
+//The ED schema is always as follows
+ED = SCHEMA {
+	entities
+		FORALL, EXISTS;
+	edges
+		THERE : EXISTS -> FORALL;
+	attributes;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+//////////////////////////////////////////////////////////////////////////
+
+//source relational schema.  Note that in a relational data exchange setting, source constraints are irrelevant
+S = SCHEMA {
+	entities
+		SDeptEmp;
+	edges;
+	attributes
+		SdeptId : SDeptEmp -> dom,
+		SmgrName : SDeptEmp -> dom,
+		SempId : SDeptEmp -> dom;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+//target relational schema.  It has two data integrity consraints, TT_tgd1 (full) and TT_tgd2
+T = SCHEMA {
+	entities
+		TDept, TEmp;
+	edges;
+	attributes
+		TempId : TEmp -> dom,
+		TwrksIn : TEmp -> dom,
+		TdeptId : TDept -> dom,
+		TmgrId : TDept -> dom,
+		TmgrName : TDept -> dom;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+//To encode a relational data exchange setting in OPL, we must union the source and target schemas together.
+ST = SCHEMA {
+	imports 
+		S, T;
+	entities;
+	edges;
+	attributes;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+//all EDs are expressed on the combined schema ST.  
+//Target constraints are target-to-target TGDs and EGDs. 
+//Here are the two target constraints: 
+
+//managers work in the departments they manage (stronger than FK)
+//Dept(d,m,n) -> Emp(m,d)
+TT_tgd1 = query {
+ FORALL = {for d0:TDept; where; return; keys;} : FORALL,
+ EXISTS = {for d :TDept, e:TEmp; 
+ 		 where d.TdeptId = e.TwrksIn,  d.TmgrId = e.TempId;
+ 		 return; keys THERE={d0=d} : FORALL;} : EXISTS  
+} : ST -> ED 
+
+//every employee works in some department (FK)
+//Emp(e,d) -> exists M,N. Dept(d,M,N)
+TT_tgd2 = query {
+ FORALL = {for e0:TEmp; where; return; keys;} : FORALL,
+ EXISTS = {for e :TEmp, d:TDept; 
+ 		 where d.TdeptId = e.TwrksIn;
+ 		 return; keys THERE={e0=e} : FORALL;} : EXISTS  
+} : ST -> ED 
+
+/////////////////////////////////////////////////////////////////////////
+
+//A data exchange  is expressed as source-to-target TGDs
+
+//every DeptEmp is a department and an employee
+//DeptEmp(d,n,e) -> exists M. Dept(d, M, n) , Emp(e, d)
+ST_tgd1 = query {
+ FORALL = {for de0:SDeptEmp; where; return; keys;} : FORALL,
+ EXISTS = {for de :SDeptEmp, d:TDept, e:TEmp; 
+ 		 where de.SdeptId = d.TdeptId, d.TdeptId = e.TwrksIn, de.SdeptId = d.TdeptId, de.SempId = e.TempId;
+ 		 return; keys THERE={de0=de} : FORALL;} : EXISTS  
+} : ST -> ED 
+
+//test instance (on ST) DeptEmp(cs, alice, 1)
+I = INSTANCE {
+	generators
+		de:SDeptEmp;
+	equations
+		de.SdeptId = cs, de.SmgrName = alice, de.SempId = "1";
+} : ST
+
+//The three EDs are 'weakly acyclic'.  Thus we know any chase sequence will terminate in polynomial time.
+//J = Dept(cs, null1, null2), Emp(1, cs), Emp(null2, cs)
+//intuitively, null2 = alice's manager id, null3 = alice's manager's name 
+J = chase I with {ST_tgd1, TT_tgd1, TT_tgd2} max 2

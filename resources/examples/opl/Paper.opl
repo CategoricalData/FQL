@@ -1,0 +1,287 @@
+MonoidActions = theory {
+	sorts
+		m, s;
+	symbols
+		n : m,
+		u : m,m -> m,
+		a : m,s -> s;
+	equations
+		forall x. u(x, n) = x,
+		forall x. u(n, x) = x,
+		forall x, y, z. u(x, u(y, z)) = u(u(x, y), z),
+		forall x, y, p. a(x, a(y, p)) = a(u(x, y), p);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//commutative rings (figure 2) kill the built-in theorem prover.  so instead,
+//we use an equational axiomatiztion of natural numbers that is easier to handle computationally.
+//it behaves exactly the same for the examples in this file
+Type = theory {
+	sorts 
+		Nat, Bool, Char, Str;
+	symbols
+		zero@7 : Nat, 
+		succ@8 : Nat -> Nat,
+       	"+"@9, "*"@10 : Nat, Nat -> Nat, //the @ define an operator precedence
+
+        	"<=" : Nat, Nat -> Bool,
+        	true, false : Bool,
+
+        	A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z : Char, 
+        	" " : Str,
+        	"" : Char, Str -> Str;
+    equations     
+		forall x. (0 "+" x) = x,
+    		forall x, y. (succ(x) "+" y) = succ((x "+" y)),
+    		forall x. (0 "*" x) = 0,
+    		forall x, y. (succ(x) "*" y) = (x "+" (x "*" y)),
+
+    		forall x. (0 "<=" x) = true,
+    		forall x. (succ(x) "<=" 0) = false,
+    		forall x, y. (succ(x) "<=" succ(y)) = (x "<=" y);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//figure 3
+S = SCHEMA {
+	entities
+	      Emp, Dept;
+	edges   
+      	mgr : Emp -> Emp,
+          wrk : Emp -> Dept,
+          sec : Dept -> Emp;
+	attributes
+          last@22 : Emp -> Str,
+          name@21 : Dept -> Str,
+          sal@20  : Emp -> Nat;
+	pathEqualities
+		forall e. e.mgr.mgr = e.mgr,
+		forall e. e.mgr.wrk = e.wrk,
+		forall d. d.sec.wrk = d;
+	obsEqualities	
+		forall e. (e.sal "<=" e.mgr.sal) = true;
+} : Type
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 5.13
+T = SCHEMA {
+	entities
+	      Emp, Dept, QR;
+	edges   
+      	mgr : Emp -> Emp,
+          wrk : Emp -> Dept,
+          sec : Dept -> Emp,
+          f : QR -> Emp,
+          g : QR -> Dept;
+	attributes
+          last@22 : Emp -> Str,
+          name@21 : Dept -> Str,
+          sal@20  : Emp -> Nat;
+	pathEqualities
+		forall e. e.mgr.mgr = e.mgr,
+		forall e. e.mgr.wrk = e.wrk,
+		forall d. d.sec.wrk = d;
+	obsEqualities	
+		forall e. (e.sal "<=" e.mgr.sal) = true,
+		forall q. (q.f.sal "<=" q.g.sec.sal) = true,
+		forall q. q.f.wrk.name = ""(A,""(D,""(M,""(I,""(N, " ")))));
+} : Type
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 5.14
+R = SCHEMA {
+	entities
+	      A;
+	edges;
+	attributes
+          emp_last@22 : A -> Str,
+          dept_name@21 : A -> Str,
+          sum@20  : A -> Nat;
+	pathEqualities;
+	obsEqualities;
+} : Type
+
+F = mapping {
+	sorts 
+		A -> QR;
+	symbols
+		sum -> forall e. (e.g.sec.sal "+" e.f.sal),
+		emp_last -> forall e. e.f.last,
+		dept_name -> forall d. d.g.name;
+} : R -> T 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//figure 4 (example 6.3)
+J = INSTANCE {
+      generators 
+      	e1, e2, e3, e4, e5, e6, e7 : Emp, 
+      	d1, d2, d3 : Dept;
+      equations 
+      	d1.name = ""(H, ""(R, " ")), 
+      	d1.sec = e3, 
+      	
+      	d2.name = ""(A,""(D,""(M,""(I,""(N, " "))))), 
+      	d2.sec = e6,
+      	
+      	d3.name = ""(I, ""(T, " ")), 
+      	d3.sec = e5,
+      	
+		e1.last = ""(G, ""(A, ""(U, ""(S, ""(S, " "))))),
+		e1.wrk = d3, e1.mgr = e1, 
+
+		e2.last = ""(N, ""(O, ""(E, ""(T, ""(H, ""(E, ""(R, " "))))))),
+		e2.wrk = d2, e2.mgr = e4,
+		
+		e3.last = ""(E, ""(I, ""(N, ""(S, ""(T, ""(E, ""(I, ""(N, " ")))))))),
+		e3.wrk = d1, e3.mgr = e3,
+
+		e4.last = ""(T, ""(U, ""(R, ""(I, ""(N, ""(G, " ")))))),
+		e4.wrk = d2, e4.mgr = e4,
+
+		e5.last = ""(N, ""(E, ""(W, ""(T, ""(O, ""(N, " ")))))),
+		e5.wrk = d3, e5.mgr = e1,
+
+		e6.last = ""(E, ""(U, ""(C, ""(L, ""(I, ""(D, " ")))))),
+		e6.wrk = d2, e6.mgr = e7,
+		
+		e7.last = ""(H, ""(Y, ""(P, ""(A, ""(T, ""(I, ""(A, " "))))))),
+		e7.wrk = d2, e7.mgr = e7,
+
+		e5.sal = 0, e6.sal = 1, e2.sal = 2, e1.sal = 3, e3.sal = 4, e4.sal = 5;
+} : S 
+	
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 6.16 / figure 5 
+
+I = INSTANCE {
+	generators 
+		e : Emp, d : Dept;
+	equations
+		e.wrk.name = ""(A,""(D,""(M,""(I,""(N, " "))))),
+		(e.sal "<=" d.sec.sal) = true;	
+} : S
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 6.18 
+
+I0 = INSTANCE {
+	generators 
+		e0 : Emp;
+	equations
+		e0.wrk.name = ""(A,""(D,""(M,""(I,""(N, " "))))),
+		(e0.sal "<=" e0.wrk.sec.sal) = true;	
+} : S
+
+//these transforms are rejected because the prover cant prove <= is transitive without induction
+/* trans1 = transpres {
+	sorts
+		Emp -> {(e0, e)};
+} : I0 -> I  
+
+trans2 = transpres {
+	sorts
+		Emp -> {(e0, e.wrk.sec)};
+} : I0 -> I */ 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 7.7 / figure 6
+
+L = SCHEMA {
+	entities
+	      Emp, Dept, Team;
+	edges   
+      	mgr : Emp -> Emp,
+          wrk : Emp -> Dept,
+          sec : Dept -> Emp,
+          on : Emp -> Team,
+          bel : Team -> Dept; 
+	attributes
+          last@22 : Emp -> Str,
+          name@21 : Dept -> Str,
+          sal@20  : Emp -> Nat,
+          col@23 : Team -> Str;
+	pathEqualities
+		forall e. e.mgr.mgr = e.mgr,
+		forall e. e.mgr.wrk = e.wrk,
+		forall d. d.sec.wrk = d,
+		forall e. e.mgr.on = e.on,
+		forall e. e.on.bel = e.wrk;
+	obsEqualities	
+		forall e. (e.sal "<=" e.mgr.sal) = true;
+} : Type
+
+H = mapping {
+	sorts
+		Emp -> Emp, 
+		Dept -> Dept;
+	symbols
+		sal -> forall e. e.sal,
+		last -> forall e. e.last,
+		name -> forall d. d.name,
+		wrk -> forall e. e.wrk,
+		sec -> forall d. d.sec,
+		mgr -> forall e. e.mgr;
+} : S -> L 
+
+SigmaHJ = sigma H J
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 9.3 / 9.5
+Q = query {
+	qA = {for e:Emp, d:Dept;
+		 where e.wrk.name = ""(A,""(D,""(M,""(I,""(N, " "))))),
+		       (e.sal "<=" d.sec.sal) = true;
+		 return emp_last = e.last,
+		 	   dept_name = d.name,
+		 	   sum = (d.sec.sal "+" e.sal);
+		 keys;		
+	} : A
+} : S -> R
+
+QJ = apply Q J
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//example 9.9
+
+L2 = SCHEMA {
+	entities
+	      A, A0;
+	edges   
+      	f : A0 -> A; 
+	attributes
+          last@22 : A0 -> Str,
+          dept_name@21 : A -> Str,
+          sum : A -> Nat;
+	pathEqualities;
+	obsEqualities;
+} : Type
+
+N = query {
+	qA = {for e:Emp, d:Dept;
+		 where e.wrk.name = ""(A,""(D,""(M,""(I,""(N, " "))))),
+		       (e.sal "<=" d.sec.sal) = true;
+		 return dept_name = d.name,
+		 	   sum = (d.sec.sal "+" e.sal);
+		 keys;		
+	} : A,
+	qA0 = {for e0:Emp;
+		 where e0.wrk.name = ""(A,""(D,""(M,""(I,""(N, " "))))),
+		       (e0.sal "<=" e0.wrk.sec.sal) = true;
+		 return last = e0.last;
+		 keys f = {e = e0, d = e0.wrk} : qA;
+	} : A0
+} : S -> L2
+
+GammaNJ = apply N J
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////

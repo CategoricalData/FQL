@@ -64,8 +64,8 @@ public class Pair<T1, T2>  /*Comparable<Pair<T1, T2>>,*/  {
 	
 	
 	
-	//public Pair<T2, T1> reverse() {
-	//	return new Pair<>(second, first);
-	//}
+	public Pair<T2, T1> reverse() {
+		return new Pair<>(second, first);
+	}
 		
 }

@@ -1,0 +1,61 @@
+T = theory { 
+ sorts
+ 	Double, Boolean;
+ symbols
+ 	tru : Boolean,
+  	plus : Double,Double -> Double,
+  	gt : Double,Double -> Boolean,
+ 	pi, e, zero, one : Double;
+ equations;
+}
+
+M = javascript {
+	symbols
+		"tru" -> "return true",
+	     "pi" -> "return 3.14",
+	     "e" -> "return 2.71",
+	     "zero" -> "return 0",
+	     "one" -> "return 1",
+		"plus" -> "return (input[0] + input[1])",
+		"gt" -> "return (input[0] > input[1])";
+} : T
+
+S = SCHEMA {
+	entities 
+		Person;
+	edges;	
+	attributes
+		age : Person -> Double;
+	pathEqualities;
+	obsEqualities;	
+} : T
+
+I0 = presentation {
+	generators 
+		p1, p2, p3, p4 : Person;
+	equations 
+		p1.age = pi, p2.age = e, p3.age = zero, p4.age = one;
+} : S
+I = instance S I0 M
+
+
+Q1 = query {
+ PersonQ = 
+ {for p:Person; 
+  where ; 
+  return age = plus(p.age, one); 
+  keys; } : Person
+} : S -> S 
+
+J = apply Q1 I
+
+
+Q2 = query {
+ PersonQ = 
+ {for p:Person; 
+  where gt(age(p), pi) = tru; 
+  return age = age(p); 
+  keys; } : Person
+} : S -> S 
+
+K = apply Q2 J

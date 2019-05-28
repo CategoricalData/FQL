@@ -1,0 +1,24 @@
+//algebraic theory for boxes of wiring diagram 2.27
+T = theory {
+	sorts 
+		A, B, C;
+	symbols 
+		X1 : A -> B, 
+		X2 : B -> C,
+		a : A;
+	equations;
+}
+
+//a functor T -> "Matrix"? . I got this from section 2.4
+Impl = javascript {
+	symbols
+	_preamble -> "java.lang.Class.forName('catdata.ide.Util'); 
+                  var Util = Java.type('catdata.ide.Util');",
+	_compose -> "return Util.multiply_many(input[0](), input[1]);", //comose is matrix multiply
+	X1 -> "return Util.mat_conv2([[1,2],[3,0]])",
+	X2 -> "return Util.mat_conv2([[2,2,0],[3,1,1]])",
+	a -> "return Util.mat_conv2([[1,0],[0,1]])";
+} : T
+
+//prints [[8, 4, 2], [6, 6, 0]]
+J = eval Impl X2(X1(a()))

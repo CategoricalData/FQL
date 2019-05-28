@@ -1,0 +1,16 @@
+CM53 = schema {
+ nodes M;
+ edges arr : M -> M;
+ equations M.arr.arr.arr.arr.arr = M.arr.arr;
+}
+
+CM33 = schema {
+ nodes J;
+ edges a : J -> J;
+ equations J.a.a.a = J;
+}
+
+F = mapping {
+ nodes M -> J;
+ edges arr -> J.a;
+} : CM53 -> CM33

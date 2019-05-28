@@ -1,0 +1,68 @@
+preamble = pragma {
+	options
+		"opl_secret_agg" = "true";
+}
+
+Ty = theory { 
+ sorts
+ 	Double;
+ symbols
+  	plus : Double,Double -> Double,
+ 	zero, ten, one, fifty, two : Double;
+ equations;
+}
+
+M = javascript {
+	symbols
+		"zero" -> "return 0",
+	     "ten" -> "return 10",
+	     "fifty" -> "return 50",
+	     "two" -> "return 2",
+	     "one" -> "return 1",
+		"plus" -> "return (input[0] + input[1])";
+} : Ty
+
+S = SCHEMA {
+	entities 
+		Emp, Dept;
+	edges;	
+	attributes
+		salary : Emp -> Double,
+		worksIn : Emp -> Dept;
+	pathEqualities;
+	obsEqualities;	
+} : Ty
+
+T = SCHEMA {
+	entities
+		Dept;
+	edges;
+	attributes
+		totalCost : Dept -> Double;
+	pathEqualities;
+	obsEqualities;
+} : Ty
+
+I0 = presentation {
+	generators 
+		p1, p2, p3, p4 : Emp,
+		d1, d2: Dept;
+	equations 
+		p1.salary = ten, p2.salary = one, p3.salary = fifty, p4.salary = two,
+		p1.worksIn = d1, p2.worksIn = d1, p3.worksIn = d2, p4.worksIn = d2;
+} : S
+I = instance S I0 M
+
+Q1 = query {
+ Q = 
+ {for d:Dept; 
+  where ; 
+  return totalCost = agg zero plus {
+  					for p:Emp;
+  					where p.worksIn = d;
+  	                    return p.salary 
+                     };
+  keys; } : Dept
+} : S -> T
+
+J = apply Q1 I

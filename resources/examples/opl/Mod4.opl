@@ -1,0 +1,40 @@
+Mod4 = theory {
+	sorts 
+		Nat;
+	symbols 
+		zero : Nat,
+		succ : Nat -> Nat;
+	equations
+		forall x. succ(succ(succ(succ(x)))) = x;
+}
+
+Four = model {
+	sorts
+		Nat -> {0,1,2,3};
+	symbols
+		zero -> { ((),0) },
+		succ -> { ((0),1), ((1),2), ((2),3), ((3),0) };
+} : Mod4
+
+Two = model {
+	sorts
+		Nat -> {t, f};
+	symbols
+		zero -> { ((),t) },
+		succ -> { ((t),f), ((f),t) };
+} : Mod4
+
+h = transform {
+	sorts
+		Nat -> {(0,t),(1,f),(2,t),(3,f)};
+} : Four -> Two
+
+zero_nat = eval Four zero()
+one_nat = eval Four succ(zero())
+two_nat = eval Four succ(succ(zero()))
+three_nat = eval Four succ(succ(succ(zero())))
+
+zero_bool = eval Two zero()
+one_bool = eval Two succ(zero())
+two_bool = eval Two succ(succ(zero()))
+three_bool = eval Two succ(succ(succ(zero())))

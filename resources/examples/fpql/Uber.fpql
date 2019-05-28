@@ -1,0 +1,143 @@
+//first, we declare our domain to have three values
+dom : type
+"margo" "ryan" "david" : dom
+
+/*
+Now we declare a schema:
+
+A(id, f, g) f,g foreign keys to B.id
+B(id, name)
+
+This schema is meant to represent a "has taught for relation".
+ */
+S = schema {
+	nodes A, B;
+	edges f:A->B, g:A->B, name:B->dom;
+	equations;
+}
+
+/*
+For example, this instance means that ryan taught for margo, and david taught for margo. 
+ 
+I_A(x, r, m)
+I_A(y, d, m)
+I_B(r, "ryan")
+I_B(d, "david")
+I_B(m, "margo")
+*/
+I = instance {
+	variables x y : A, r d m : B;
+	equations x.f=r, x.g=m, y.f=d, y.g=m,
+	          r.name="ryan", d.name="david", m.name="margo";
+} : S
+
+/*
+ Here is an uber-flower to compute the reflexive closure
+ of the "has taught for relation", or any relation on S. 
+ For each node in the target schema (also S), 
+ we give a set of conjunctive queries.
+*/
+refl_closure = polynomial {
+ //this 'sub-query', called q1, copies B into B
+ q1 = {for b:B; where; attributes name=b.name; edges;} : B,
+
+ //q2 copies A to A.  For each a in A, we must specify, for edges f and g,
+ //which ID in B to send a to.  We do that by giving
+ //a valuation for q1's FOR-bound variables in terms of q2's variables
+ //(technically, we are giving a homomorphism q2 -> q1).
+ q2 = {for a:A; 
+       where; 
+       attributes; 
+       edges f = {b=a.f} : q1,
+             g = {b=a.g} : q1;
+ } : A, 
+
+ //q3 does reflexivity - for each b2 in B, we put b2 into A.
+ q3 = {for b2:B;
+       where;
+       attributes;
+       edges f = {b=b2} : q1,
+             g = {b=b2} : q1;
+ } : A 
+} : S -> S
+
+/*
+The reflexive closure on our example I has 5 rows in I_A:
+
+I_A(x, r, m)
+I_A(y, d, m)
+I_A(r, r, r)
+I_A(d, d, d)
+I_A(m, m, m)
+I_B(r, "ryan")
+I_B(d, "david")
+I_B(m, "margo")
+*/
+I_refl = apply refl_closure I
+
+/*
+ Here is an uber-flower to compute a 'transitivity step' 
+ of the "has taught for relation", or any relation on S.  
+ As before, for each node in the target schema (also S), 
+ we give a set of conjunctive queries.
+*/
+trans_step = polynomial {
+ //copies B into B
+ q1 = {for b:B; where; attributes name=b.name; edges;} : B,
+
+ //copies A into A
+ q2 = {for a:A; 
+       where; 
+       attributes; 
+       edges f = {b=a.f} : q1,
+             g = {b=a.g} : q1;
+ } : A, 
+
+ //q3 does transitivity - for a1 and a2 in A, where a1.g = a2.f, we put (a1.f, a2.g) into A.
+ q3 = {for a1:A, a2:A;
+       where a1.g = a2.f;
+       attributes;
+       edges f = {b=a1.f} : q1,
+             g = {b=a2.g} : q1;
+ } : A 
+} : S -> S
+
+/*
+The reflexive closure of our example I is already transitively closed,
+but in FQL, unions are disjoint.  Hence, a transitivty step puts 12
+rows into A:
+
+I_A(0, r, m)
+I_A(1, r, m)
+I_A(2, r, m)
+I_A(3, r, r)
+I_A(4, r, r)
+I_A(5, d, m)
+I_A(6, d, m)
+I_A(7, d, m)
+I_A(8, d, d)
+I_A(9, d, d)
+I_A(10, m, m)
+I_A(11, m, m)
+*/
+I_refl_trans1 = apply trans_step I_refl
+
+//////////////
+
+//It's a little hard to read instances on schema S, so we 
+//pull them back onto spans here:
+
+isa_schema_small = schema {
+	nodes A;
+	edges l : A -> dom, r : A -> dom;
+	equations;
+}
+
+M = mapping {
+	nodes A -> A;
+	edges l -> f.name, r -> g.name;
+} : isa_schema_small -> S 
+
+I_small = delta M I
+I_refl_small = delta M I_refl
+I_trans_small = delta M I_refl_trans1

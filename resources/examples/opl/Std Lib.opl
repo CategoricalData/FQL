@@ -1,0 +1,68 @@
+preamble = pragma {
+	options
+		"opl_prover_force_prec" = "true";
+}
+
+//bools, computationally (note: not boolean algebra)
+Bool = theory {
+	sorts
+		Bool;
+	symbols
+		true, false : Bool,
+		aand, or, implies : Bool, Bool -> Bool,
+		not : Bool -> Bool;
+	equations
+		aand(true, true) = true,
+		aand(true, false) = false,
+		aand(false, true) = false,
+		aand(false, false) = false,
+
+		or(true, true) = true,
+		or(true, false) = true,
+		or(false, true) = true,
+		or(false, false) = false,
+
+		implies(true, true) = true,
+		implies(true, false) = false,
+		implies(false, true) = true,
+		implies(false, false) = true,
+
+		not(true) = false,
+		not(false) = true;
+}
+
+//nats, computationally (note: not commutative ring)
+Nat = theory {
+	sorts
+		Nat;
+	symbols
+		plus : Nat, Nat -> Nat,
+		zero : Nat, 
+		succ : Nat -> Nat;
+	equations
+		forall x. plus(zero, x) = x,
+		forall x, y. plus(succ(x), y) = succ(plus(x,y));
+}
+
+//strings, computationally (note: not free monoid)
+String = theory {
+	sorts
+		Char, String;
+	symbols	
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z : Char,
+		"" : Char, String -> String,
+		" " : String;
+	equations;
+}
+
+StdLib = theory {
+	imports
+		Bool, Nat, String;
+	sorts
+		Void;
+	symbols
+		length : String -> Nat;
+	equations
+		length(" ") = zero,
+		forall x, y. length(""(x, y)) = succ(length(y));
+}

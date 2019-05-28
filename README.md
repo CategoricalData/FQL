@@ -4,13 +4,15 @@ Functorial Query Language (Archive)
 About
 -----
 
-This repository holds the historical, archived codebase for the FQL IDE, which is no longer under development.  The successor to this project is the CQL, Categorical Query Language project, being led by [Categorical Informatics](http://categorical.info/). 
+This repository holds the historical, archived codebase for the FQL IDE, which is no longer under development.  
+The successor to this project is the CQL, [Categorical Query Language project](https://categoricaldata.net).
 
 
 Build and installation
 ----------------------
 	
-For best results, compile using the [Eclipse IDE](https://eclipse.org/jdt/).  A pre-built jar is provided.  Requires Java 11.  
+For best results, compile using the [Eclipse IDE](https://eclipse.org/jdt/).  
+A pre-built jar is provided.  Requires Java 12.  
 
 License
 -------
@@ -47,8 +49,7 @@ jparsec (Apache License),
 JUNG (BSD License),
 RSyntaxTextArea and autocomplete (BSD License),
 H2 (Mozilla Public License or Eclipse Public License),
-
-### H2 (Mozilla Public License or Eclipse Public License)
+commons-lang-3 (Apache),
 
 This software contains unmodified binary redistributions for
 H2 database engine (http://www.h2database.com/),

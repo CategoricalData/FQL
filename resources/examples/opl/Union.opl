@@ -1,0 +1,58 @@
+Type = theory {
+	sorts
+		String;
+	symbols
+		;
+	equations;
+}
+
+A = SCHEMA {
+	entities
+		Person, Food, X;
+	edges
+		favorite1 : Person -> Food,
+		favorite2 : Person -> Food;
+	attributes
+		foodname : Food -> String;
+	pathEqualities
+		forall x. x.favorite1 = x.favorite2;
+	obsEqualities
+		forall x. x.favorite1.foodname = x.favorite2.foodname;
+} : Type
+
+B = SCHEMA {
+	entities
+		Department, Employee, X;
+	edges
+		worksIn1 : Employee -> Department,
+		worksIn2 : Employee -> Department;
+	attributes
+		deptname : Department -> String;
+	pathEqualities
+		forall x. x.worksIn1 = x.worksIn2;
+	obsEqualities
+		forall x. x.worksIn1.deptname = x.worksIn1.deptname;
+} : Type
+
+C = union Type {A B}
+
+
+I = INSTANCE {
+	generators
+		p1, p2 : Person,
+		f1 : Food,
+		x : X;
+	equations
+		p1.favorite1 = f1;
+} : A
+
+J = INSTANCE {
+	generators
+		d1, d2 : Person,
+		e1 : Food,
+		e : X;
+	equations
+		d1.favorite1 = e1;
+} : A
+
+K = union A {I J}

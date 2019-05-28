@@ -40,12 +40,19 @@ import javax.swing.filechooser.FileFilter;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
+import catdata.fpql.EnrichViewer;
+import catdata.fpql.XEasikToFQL;
+import catdata.fpql.XJsonToFQL;
+import catdata.fpql.XNeo4jToFQL;
+import catdata.fpql.XRaToFpql;
+import catdata.fpql.XSqlToFql;
 import catdata.fql.RaToFql;
 import catdata.fql.RingToFql;
 import catdata.fql.SqlToFql;
 import catdata.fql.gui.FqlCodeEditor;
 import catdata.fqlpp.KBViewer;
 import catdata.ide.IdeOptions.IdeOption;
+import catdata.opl.CfgToOpl;
 
 @SuppressWarnings("serial")
 /*
@@ -101,12 +108,12 @@ public class GUI extends JPanel {
 		Menu legacyMenu = new Menu("Legacy");
 		Menu fqlMenu = new Menu("FQL");
 		Menu fqlppMenu = new Menu("FQL++");
-//		Menu oplMenu = new Menu("OPL");
-//		Menu fpqlMenu = new Menu("FPQL");
+		Menu oplMenu = new Menu("OPL");
+		Menu fpqlMenu = new Menu("FPQL");
 		legacyMenu.add(fqlMenu);
 		legacyMenu.add(fqlppMenu);
-//		legacyMenu.add(oplMenu);
-//		legacyMenu.add(fpqlMenu);
+		legacyMenu.add(oplMenu);
+		legacyMenu.add(fpqlMenu);
 		MenuItem optionsItem2 = new MenuItem("Legacy options");
 		legacyMenu.add(optionsItem2);
 		optionsItem2.addActionListener(e -> DefunctGlobalOptions.showOptions());
@@ -114,8 +121,8 @@ public class GUI extends JPanel {
 		
 		populateFql(fqlMenu);
 		populateFqlpp(fqlppMenu);
-//		populateFpql(fpqlMenu);
-//		populateOpl(oplMenu);
+		populateFpql(fpqlMenu);
+		populateOpl(oplMenu);
 		
 		menuBar.add(legacyMenu);
 
@@ -888,7 +895,7 @@ public class GUI extends JPanel {
 
 	}
 
-	/* private static void populateFpql(Menu menu) {
+	 private static void populateFpql(Menu menu) {
 
 		MenuItem enrichItem = new MenuItem("FPQL Enrich");
 			menu.add(enrichItem);
@@ -924,11 +931,11 @@ public class GUI extends JPanel {
 			cfgItem.addActionListener(x -> new CfgToOpl());
 
 
-		MenuItem sqlToOplItem = new MenuItem("SQL to OPL");
-			menu.add(sqlToOplItem);
-			sqlToOplItem.addActionListener(x -> SqlToOpl.showPanel());
+		//MenuItem sqlToOplItem = new MenuItem("SQL to OPL");
+		//	menu.add(sqlToOplItem);
+		//	sqlToOplItem.addActionListener(x -> SqlToOpl.showPanel());
 
-		MenuItem wizardItem = new MenuItem("Warehouse Wizard");
+		/*MenuItem wizardItem = new MenuItem("Warehouse Wizard");
 			menu.add(wizardItem);
 
 			wizardItem.addActionListener(x -> new Wizard<>(new OplWarehouse(), y -> {
@@ -953,6 +960,6 @@ public class GUI extends JPanel {
                 doExample(ex);
             }).startWizard());
 	}
-	
-*/
+	*/
+	}
 }
