@@ -14,6 +14,7 @@ import javax.swing.JTextField;
 
 import catdata.Pair;
 import catdata.Unit;
+import catdata.fql.FqlOptions.SQLKIND;
 import catdata.ide.Language;
 import catdata.ide.Options;
 
@@ -26,36 +27,36 @@ public class FqlppOptions extends Options {
 		return Language.FQLPP.toString();
 	}
 	
-	public final int MAX_NODES = 32;
-	public final int MAX_EDGES = 128;
-	public final int MAX_PATH_LENGTH = 8;
-	public final int MAX_DENOTE_ITERATIONS = 65536;
+	public  int MAX_NODES = 32;
+	public  int MAX_EDGES = 128;
+	public  int MAX_PATH_LENGTH = 8;
+	public  int MAX_DENOTE_ITERATIONS = 65536;
 
-	public final String useLineage = "Summary as ID";
-	public final String piLineage = "Summary as ID";
+	public  String useLineage = "Summary as ID";
+	public  String piLineage = "Summary as ID";
 	
-	public final boolean VALIDATE = true;
-	public final boolean set_textual = true;
-	public final boolean fn_textual = true;
-	public final boolean set_tabular = true;
-	public final boolean fn_tabular = true;
-	public final boolean cat_tabular = true;
-	public final boolean cat_textual = true;
-	public final boolean ftr_tabular = true;
-	public final boolean ftr_textual = true;
-	public final boolean cat_graph = true;
-	public final boolean ftr_graph = true;
-	public final boolean set_graph = true;
-	public final boolean fn_graph = true;
-	public final boolean trans_textual = true;
-	public final boolean trans_tabular = true;
-	public final boolean trans_graph = true;
-	public final boolean cat_schema = true;
-	public final boolean ftr_elements = true;
-	public final boolean ftr_instance = true;
-	public final boolean ftr_joined = true;
-	public final boolean ftr_mapping = true;
-	public final boolean trans_elements =  true;
+	public  boolean VALIDATE = true;
+	public  boolean set_textual = true;
+	public  boolean fn_textual = true;
+	public  boolean set_tabular = true;
+	public  boolean fn_tabular = true;
+	public  boolean cat_tabular = true;
+	public  boolean cat_textual = true;
+	public  boolean ftr_tabular = true;
+	public  boolean ftr_textual = true;
+	public  boolean cat_graph = true;
+	public  boolean ftr_graph = true;
+	public  boolean set_graph = true;
+	public  boolean fn_graph = true;
+	public  boolean trans_textual = true;
+	public  boolean trans_tabular = true;
+	public  boolean trans_graph = true;
+	public  boolean cat_schema = true;
+	public  boolean ftr_elements = true;
+	public  boolean ftr_instance = true;
+	public  boolean ftr_joined = true;
+	public  boolean ftr_mapping = true;
+	public  boolean trans_elements =  true;
 	
 	@Override
 	public Pair<JComponent, Function<Unit, Unit>> display() {
@@ -171,7 +172,46 @@ public class FqlppOptions extends Options {
 			viewer1.add(new JLabel());
 			viewer2.add(new JLabel());
 		}
-		Function<Unit, Unit> fn = (Unit t) -> Unit.unit;
+		Function<Unit, Unit> fn = (Unit t) -> {
+            int a = MAX_PATH_LENGTH;
+            int b = MAX_DENOTE_ITERATIONS;
+            try {
+                a = Integer.parseInt(plen.getText());
+                b = Integer.parseInt(iter.getText());
+                
+            } catch (NumberFormatException nfe) {
+                
+            }
+            VALIDATE = jcb.isSelected();
+            
+            MAX_PATH_LENGTH = a;
+            MAX_DENOTE_ITERATIONS = b;
+             
+           set_textual = set_textual_box.isSelected();
+        	fn_textual = fn_textual_box.isSelected();
+        	set_tabular = set_tabular_box.isSelected();
+        	fn_tabular = fn_tabular_box.isSelected();
+        	cat_tabular =  cat_tabular_box.isSelected();
+        	cat_textual = cat_textual_box.isSelected();
+        	ftr_tabular = ftr_tabular_box.isSelected();
+        	ftr_textual = ftr_textual_box.isSelected();
+        	cat_graph = cat_graph_box.isSelected();
+        	ftr_graph = ftr_graph_box.isSelected();
+        	set_graph = set_graph_box.isSelected();
+        	fn_graph = fn_graph_box.isSelected();
+        	trans_textual = t_textual_box.isSelected();
+        	trans_tabular = t_tabular_box.isSelected();
+        	trans_graph = t_graph_box.isSelected();
+        	cat_schema = cat_schema_box.isSelected();
+        	ftr_elements = ftr_elements_box.isSelected();
+        	ftr_instance = ftr_instance_box.isSelected();
+        	ftr_joined = ftr_joined_box.isSelected();
+        	ftr_mapping = ftr_mapping_box.isSelected();
+        	trans_elements =  t_elements_box.isSelected();
+
+              
+            return Unit.unit;
+        };
 
 		return new Pair<>(generalsplit, fn);
 	}

@@ -20,6 +20,7 @@ import java.util.Vector;
 import java.util.stream.Stream;
 
 import catdata.Util;
+import gnu.trove.map.hash.THashMap;
 
 
 public class Examples {
@@ -83,9 +84,9 @@ public class Examples {
 				URL l = ClassLoader.getSystemResource("examples");
 				if (l == null) {
 					final String classpath = System.getProperty("java.class.path");
-					//final String[] classpathEntries = classpath.split(File.pathSeparator);
+					// final String[] classpathEntries = classpath.split(File.pathSeparator);
 					new RuntimeException("Cannot locate 'examples' from : " + classpath).printStackTrace();
-					Map<Language, List<Example>> ret = new HashMap<>();
+					Map<Language, List<Example>> ret = new THashMap<>();
 					for (Language ll : Language.values()) {
 						ret.put(ll, new LinkedList<>());
 					}
@@ -95,27 +96,26 @@ public class Examples {
 				File f = new File(l.toURI());
 				examples2 = getExamples(f);
 				return examples2;
-			} 
-				URI uri = url.toURI();
-				if (uri.getScheme().equals("jar")) {
-					examples2 = getExamplesFromJar(uri);
-					return examples2;
-				}   // TODO AQL this is really messed up what's going on with Eclipse
-					URL l = ClassLoader.getSystemResource("examples");
-					if (l == null) {
-						// new RuntimeException("Cannot locate built-in examples").printStackTrace();
-						Map<Language, List<Example>> ret = new HashMap<>();
-						for (Language ll : Language.values()) {
-							ret.put(ll, new LinkedList<>());
-						}
-						examples2 = ret;
-						return examples2;
-					}
-					File f = new File(l.toURI());
-					examples2 = getExamples(f);
-					return examples2;
-				
-			
+			}
+			URI uri = url.toURI();
+			if (uri.getScheme().equals("jar")) {
+				examples2 = getExamplesFromJar(uri);
+				return examples2;
+			} // TODO CQL this is really messed up what's going on with Eclipse
+			URL l = ClassLoader.getSystemResource("examples");
+			if (l == null) {
+				// new RuntimeException("Cannot locate built-in examples").printStackTrace();
+				Map<Language, List<Example>> ret = new THashMap<>();
+				for (Language ll : Language.values()) {
+					ret.put(ll, new LinkedList<>());
+				}
+				examples2 = ret;
+				return examples2;
+			}
+			File f = new File(l.toURI());
+			examples2 = getExamples(f);
+			return examples2;
+
 			//
 
 		} catch (Exception e) {
