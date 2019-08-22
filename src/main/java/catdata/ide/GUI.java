@@ -40,19 +40,12 @@ import javax.swing.filechooser.FileFilter;
 import catdata.Pair;
 import catdata.Unit;
 import catdata.Util;
-import catdata.fpql.EnrichViewer;
-import catdata.fpql.XEasikToFQL;
-import catdata.fpql.XJsonToFQL;
-import catdata.fpql.XNeo4jToFQL;
-import catdata.fpql.XRaToFpql;
-import catdata.fpql.XSqlToFql;
 import catdata.fql.RaToFql;
 import catdata.fql.RingToFql;
 import catdata.fql.SqlToFql;
 import catdata.fql.gui.FqlCodeEditor;
 import catdata.fqlpp.KBViewer;
 import catdata.ide.IdeOptions.IdeOption;
-import catdata.opl.CfgToOpl;
 
 @SuppressWarnings("serial")
 /*
@@ -897,12 +890,12 @@ public class GUI extends JPanel {
 
 	 private static void populateFpql(Menu menu) {
 
-		MenuItem enrichItem = new MenuItem("FPQL Enrich");
-			menu.add(enrichItem);
-			enrichItem.addActionListener(x -> new EnrichViewer());
+		//MenuItem enrichItem = new MenuItem("FPQL Enrich");
+		//	menu.add(enrichItem);
+		//	enrichItem.addActionListener(x -> new EnrichViewer());
 
 
-		MenuItem raItem = new MenuItem("RA to FPQL");
+		/*MenuItem raItem = new MenuItem("RA to FPQL");
 			menu.add(raItem);
 			raItem.addActionListener(x -> new XRaToFpql());
 
@@ -920,15 +913,15 @@ public class GUI extends JPanel {
 
 			MenuItem easik = new MenuItem("EASIK to FPQL");
 			menu.add(easik);
-			easik.addActionListener(x -> new XEasikToFQL());
+			easik.addActionListener(x -> new XEasikToFQL());*/
 
 	} 
 
 	private static void populateOpl(Menu menu) {
 
-		MenuItem cfgItem = new MenuItem("CFG to OPL");
-			menu.add(cfgItem);
-			cfgItem.addActionListener(x -> new CfgToOpl());
+		//MenuItem cfgItem = new MenuItem("CFG to OPL");
+		//	menu.add(cfgItem);
+		//	cfgItem.addActionListener(x -> new CfgToOpl());
 
 
 		//MenuItem sqlToOplItem = new MenuItem("SQL to OPL");
